@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Calculadora de Costo de Recetas</title>
+    <!-- Dependencias Externas -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf-autotable.umd.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+    <!-- Import Map para React -->
+    <script type="importmap">
+    {
+      "imports": {
+        "react": "https://esm.sh/react@18.2.0",
+        "react-dom/client": "https://esm.sh/react-dom@18.2.0/client"
+      }
+    }
+    </script>
+    <!-- Babel para compilar JSX en el navegador -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head>
+<body class="bg-slate-50 text-slate-900 antialiased">
+    <div id="root"></div>
+    
+    <script type="text/babel" data-type="module">
+        import React from 'react';
+        import ReactDOM from 'react-dom/client';
+
+        const { useState, useEffect, useMemo, useRef, useCallback } = React;
+
+        // --- CONSTANTS ---
+        const VAT_RATE = 0.21;
+        const UNITS_OF_MEASURE = ["g", "kg", "ml", "l", "unidad", "cda", "cdita", "taza", "pizca", "porción"];
+        const RECIPE_CATEGORIES = [
+            "Plato Principal", "Entrada", "Postre", "Ensalada", "Pasta", 
+            "Guarnición", "Salsas", "Cafetería", "Bebida de venta", "Bebida con preparación", 
+            "Sin Tacc", "Vinos", "Espumantes"
+        ];
+        // This is the definitive list of raw ingredients (Insumos) for building recipes.
+        const RAW_INGREDIENTS_LIST = ["Abadejo", "Aceite de girasol x 5 ltr", "Aceite oliva x 5 ltr", "Aceitunas negras x 5 kgr", "Aceitunas verdes x 5 kgr", "Acelga", "Aceto Balsamico", "Acuarius manzana", "Acuarius naranja", "Agua con gas", "Agua sin gas", "Aji molido", "Ajo", "Alambrado Bonarda", "Alambrado Malbec", "Alaris Dulce", "Albahaca", "Alcaparras 730gr", "Alcohol para fajinar", "Alfajor de almendras sin tacc", "Alma Mora Malbec", "Almendrado x 30 u", "Americana", "Anana en almibar x 800 gr", "Aperol x 750 cc", "Apio", "Arroz parboil", "Arvejas", "Atomizador con gatillo", "Azucar en sobres x 800", "Azucar impalpable", "Azucar negra", "Azucar x 25 klgr", "Baccardi Blanco", "Baccardi Dorado", "Baileys", "Banana", "Baño de chocolate x 5 k", "Baron B Extra brut", "Barra Ricecrem", "Batata", "Beefeater", "Berenjenas", "Bife de chorizo", "Bioquitol x 5 ltr", "Blem o lustramuebles", "Blenders 1 Litro", "Bobina de papel 200 mts x 2 uni", "Boldo", "Bolsa de arranque 20 x 25", "Bolsa de arranque 30 x 40", "Bolsa de arranque 40 x 50", "Bolsa de arranque 40 x 70", "Bolsa de arranque 50 x 70", "Bolsa de consorcio x 50", "Bombon Suizo x 8 u", "Bondiola de cerdo", "Brocoli", "Burnetts Gin x 1l", "Cachaca Belho Barreiro", "Cafe de filtro", "cafe en capsulas", "Cafe en granos", "Calabaza", "Calamar entero", "Caldo de carne", "Caldo de gallina", "Caldo de verdura", "Campari", "Canelones Sin Tacc", "Capsulas descafeinadas", "Carne picada", "Carré de cerdo pieza entera", "Cebolla", "Cebolla de verdeo", "Cereales con azucar x 3,4 kgr", "Cereales sin azucar x 3,4 kgr", "Champignon cumana x 2,84 k", "Champiñones lata x 800 gr cumana", "Chandon Ex Br", "Cheddar 160 fetas", "Chernia", "Chivas 12", "Choclo en lata 0,8 kgr", "Chocolate submarino x 50", "Chorizo colorado", "Coca 2,25", "Coca cola", "Coca Light 2,25", "Coca Zero", "Coca Zero 2,25", "Coco rallado", "Cola de langostino", "Coliflor", "Colorante amarillo 5lt", "Colorante caramelo para pan 2lt", "Colorante negro", "Cookies de chocolate sin TACC", "Crema Chant x 250gr", "crema de leche x 4 ltr", "Cuadril", "Desengrasante", "Detergente x 5lt", "DON", "Don David Malbec", "DON x 4", "Dulce de batata x 5k", "Dulce de leche clasico x 5k", "Dulce de leche porcionado 108", "Dulce de leche repostero EL NONO", "Dulce de membrillo", "Durazno en almibar x 800 gr", "DV Catena Malbec", "Edulcorante", "EG Cabernet Franc", "EG Chardonnay", "EG Gran Reserva Charnonnay", "EG Gran Reserva Malbec", "EG Malbec", "EG Pequeñas Produccione Sauv Blanc", "EG Pequeñas Producciones Cab Franc", "EG Pequeñas Producciones Malbec", "EG Pequeñas Producciones Pinot Noir", "EGG Reserva Malbec", "EGPP Malbec x 4", "Emilia Chardonnay", "Emilia Malbec", "Escarbadientes ensobrados x 1000", "Escencia de limón", "Escencia de manteca 2lt", "Escoba con palo", "Esencia de limón x 1ltr", "Esencia de Naranja x 1ltr", "Esencia de vainilla", "Espinaca", "Esponjas de acero", "Esponjas lavaplatos", "Fanta", "Fecula de Maiz", "Fernet Branca", "FG Blanco Dulce", "FG Chardonnay", "FG Malbec", "FG Rose Malbec", "Finca la linda Malbec", "Flanera aluminio x 100", "Folios A4 transparentes", "Fond de Cave Malbec", "Frutilla", "Frutos de mar", "Gancia", "Garbanzos", "Gengibre", "Grasa x 5k", "Harina 0000 x 25k", "Harina de Salvado", "Heineken Lata", "Helado de Americana", "Helado de Chocolate", "Helado de dulce de leche", "Helado de frutilla", "Hielo", "Huevo", "Huevo liquido", "Imperial Lata", "J&B", "J&B x 750 cc", "Jack Daniels x 750 cc", "Jalea en caliente", "Jalea en frío", "Jameson x 1000 cc", "Jamon cocido", "Jamon crudo", "Jarabe tipo Miel", "Jengibre", "Jugo tang naranja x 20 unidades", "Jugo tang pomelo x 20 unidades", "JW Black Label", "JW Red Label", "Ketchup porcionada", "Kiwi", "Langostinos sin cabeza", "lapicera azul", "Latittud Charnonnay", "Lavandina x 5lt", "Leche de almendras Silk", "Leche entera LV x 12", "Leche LV Descremada X 12", "Lechuga", "Lechuga Morada", "Lemoccelo", "Lentejon", "Levadura x 0,5", "Levite Manzana", "Levite naranja", "Levite pomelo", "Limas", "Limon", "Limoncello 1,5 ltr", "Lomo", "Luigi Bosca", "Luigi Bosca Cabernet", "Luigi Bosca Malbec", "LW Red Label", "Malta", "Mandarina", "Manga de 20cm puede ser descardable", "Maní pelado para bar", "Manteca pilon 5k", "Manteca porcionada 144 x 10 gr", "Manzana Roja", "Manzana verde", "Manzanilla", "Margarina batida x 10 kgr", "Margarina hojaldre no vegetal", "Margarina para hojaldre", "Margarina x 5k", "Martini Rosso", "Matambre", "Matecocido", "mayonesa porcionada", "mayonesa x 3k", "MEG x 4", "Mejillón pelado", "Membrillo", "Membrillo x 10k", "Merluza", "Mermelada de ciruela porcionada", "Mermelada de durazno light porc", "Mermelada de durazno porcionada", "Mermelada de fruti light porc", "Mermelada de frutilla porcionada", "Miel porcionada", "Mix de frutos de mar", "Mix de frutos secos", "Moldes para budin de carton", "Moldes para pan dulce x 100 gr", "Moldes para pan dulce x 500 gr", "Moldes para pan dulce x 750 gr", "Monchenot ExBr", "Mopa y palo", "Morron rojo", "Morron verde", "Mozzarella", "Naranja", "Neskuik x 4gkr", "Norton gambei Ex Br", "Nueces", "Nugget de pollo", "Ojo de Bife", "Paleta", "Palitos Snack para bar", "Palta", "Pan de Hamburguesa", "Pan de Molde", "Panceta ahumada", "Papa negra", "Papas Snack para el bar", "Papel film", "Peceto", "Pepinillos", "Pepino", "Peras", "Perejil", "Pimenton dulce", "Pimienta blanca", "Pimienta negra en grano", "Pisco", "Pollo", "Polvo de hornear", "Pomelo", "Porcion de coco sin tacc", "Porotos Alubia", "Porotos Negros", "Premezcla de vainilla satin", "President Blend", "Puerro", "Pulpa de frutilla", "Queso azul", "Queso barra", "Queso Crema 3k", "Queso fresco o cuartirolo", "Queso Sardo horma", "Quiche de Puerro y pollo", "Rebozador x 5 kilos", "Rejillas para cocina", "Repollo colorado", "Revolvedores de plastico trago largo", "Roast Beef", "Rollo termico para comandera", "Rucula", "Saint felicient Malbec", "sal fina x 500gr", "Salame", "Salamin picado fino", "Salchicha", "Salmón blanco", "Salsa caesar 0,9 kgr", "Salsa de chocolate", "Salsa de soja", "San Felipe Roble Chardonnay", "San Telmo ExBr", "Sandwich j q sin tacc", "Santa Julia Chennin Lata", "Santa Julia Malbec", "Secador de piso", "Sprite", "Sprite 2,25", "Sprite zero", "Sprite Zero 2,25", "Stevia en sobres x 100", "Tanqueray Gin x 700 cc", "Tapa de empanada copetin", "Tapa de empanada roticera para freir", "Te clasico", "Té de boldo", "Té de Manzanilla", "Te Mezcla de hierbas", "Tequila Jose Cuervo", "Tijera", "Tilo", "Tomate cherry", "Tomate redondo", "Tomate triturado", "Tonica", "Tostadas sin TACC", "Trapiche Malbec", "Trapo de piso", "Triple Sec", "Trumpeter Chardonnay", "Trumpeter Malbec", "Tubo de calamar para Rabas", "Uco Box Malbec", "Uvas", "Uxmal Chardonnay", "Uxmal malbec", "vasos descartable 500 cc", "Vinagre", "Vino Blanco tetra", "Vino Tinto tetra", "Whisky cocina W", "White Horse x 750 cc", "Yogurt frutilla entero", "Yogurt frutilla Light", "Yogurt vainilla entero", "Yogurt vainilla Light", "Zanahoria", "zapallito verde", "Zapallo anco", "Zuccardi Q Cab Franc", "Zuccardi Q Malbec", "Zucchini", "Zuelo orig bot 12 x 500 ml", "EG Espumante EX BR", "Saint felicien Pinot Noir", "Coca 1.5", "Coca Zero 1.5", "Sprite 1.5", "Servilletas con logo papel x 1500", "Laurel", "Curcuma", "Gin Gordon´s", "Saint Felicien Souv Blanc", "Tia Maria"];
+
+        // --- HELPER FUNCTIONS ---
+        const calculateRecipeNetCost = (ingredients) => {
+            if (!ingredients || !Array.isArray(ingredients) || ingredients.length === 0) {
+                return 0;
+            }
+            return ingredients.reduce((sum, ing) => {
+                const quantity = parseFloat(ing.quantity) || 0;
+                const unitPrice = parseFloat(ing.unitPrice) || 0;
+                const waste = 1 - (parseFloat(ing.wastePercentage) || 0) / 100;
+                if (waste <= 0) return sum;
+                return sum + (quantity * unitPrice / waste);
+            }, 0);
+        };
+
+        // --- HOOKS ---
+        function useLocalStorage(key, initialValue) {
+            const [storedValue, setStoredValue] = useState(() => {
+                try {
+                    const item = window.localStorage.getItem(key);
+                    if (!item) {
+                        return typeof initialValue === 'function' ? initialValue() : initialValue;
+                    }
+                    const parsed = JSON.parse(item);
+                    return Array.isArray(parsed) ? parsed : (typeof initialValue === 'function' ? initialValue() : initialValue);
+                } catch (error) {
+                    console.error(`Error reading localStorage key “${key}”:`, error);
+                    return typeof initialValue === 'function' ? initialValue() : initialValue;
+                }
+            });
+            const setValue = (value) => {
+                try {
+                    const valueToStore = value instanceof Function ? value(storedValue) : value;
+                    setStoredValue(valueToStore);
+                    window.localStorage.setItem(key, JSON.stringify(valueToStore));
+                } catch (error) { console.error(error); }
+            };
+            return [storedValue, setValue];
+        }
+
+        // --- COMPONENTS ---
+        const ConfirmModal = ({ isOpen, onClose, onConfirm, title, message }) => {
+            if (!isOpen) return null;
+            return (
+                <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4" onClick={onClose}>
+                    <div className="bg-white rounded-lg shadow-xl w-full max-w-md p-6" onClick={e => e.stopPropagation()}>
+                        <h3 className="text-lg font-semibold text-slate-800">{title}</h3>
+                        <p className="mt-2 text-sm text-slate-600">{message}</p>
+                        <div className="mt-6 flex justify-end space-x-3">
+                            <button onClick={onClose} className="px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-md hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">Cancelar</button>
+                            <button onClick={onConfirm} className="px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">Eliminar</button>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const UtensilsIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-6 w-6 text-slate-800"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2v0a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3z"/></svg>;
+        const HomeIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5 mr-2"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>;
+        const ListChecksIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5 mr-2"><path d="m16 6 2 2 4-4"/><path d="m16 12 2 2 4-4"/><path d="m16 18 2 2 4-4"/><path d="M10 6H3"/><path d="M10 12H3"/><path d="M10 18H3"/><path d="M6 6h.01"/><path d="M6 12h.01"/><path d="M6 18h.01"/></svg>;
+        const BookOpenIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5 mr-2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>;
+        const UploadIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4 mr-1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>;
+        const DownloadIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4 mr-1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>;
+        const PlusIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>;
+        const TrashIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>;
+        
+        const Header = ({ navigateTo, currentPage, handleImportExcel, handleExportExcel }) => {
+            const navItems = [
+                { page: 'dashboard', label: 'Dashboard', icon: <HomeIcon /> },
+                { page: 'productList', label: 'Productos', icon: <ListChecksIcon /> },
+                { page: 'savedRecipes', label: 'Recetas', icon: <BookOpenIcon /> },
+            ];
+            const handleLogoClick = () => navigateTo('dashboard');
+            return (
+                <header className="bg-white border-b border-slate-200 sticky top-0 z-20">
+                    <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                        <div className="flex justify-between items-center h-16">
+                            <div className="flex items-center cursor-pointer" onClick={handleLogoClick}>
+                               <UtensilsIcon />
+                                <span className="font-semibold text-lg ml-2 text-slate-800 tracking-tight">Costo de Platos</span>
+                            </div>
+                            <div className="flex items-center space-x-1 sm:space-x-2">
+                                 {navItems.map(item => {
+                                    const isActive = currentPage === item.page;
+                                    return (
+                                        <button key={item.page} onClick={() => navigateTo(item.page)} className={`inline-flex items-center px-2 sm:px-3 py-2 rounded-md text-sm font-medium transition-colors duration-150 ${ isActive ? 'bg-slate-100 text-slate-900' : 'text-slate-500 hover:bg-slate-100 hover:text-slate-900' }`} >
+                                            {item.icon} {item.label}
+                                        </button>
+                                    );
+                                })}
+                                <div className="h-6 w-px bg-slate-200 mx-2"></div>
+                                <label htmlFor="import-excel-header" className="cursor-pointer inline-flex items-center text-sm font-medium text-slate-600 bg-white border border-slate-300 rounded-md px-2 sm:px-3 py-2 hover:bg-slate-50 transition">
+                                    <UploadIcon /> <span className="hidden sm:inline">Importar</span>
+                                </label>
+                                <input id="import-excel-header" type="file" className="hidden" accept=".xlsx, .xls" onChange={handleImportExcel} />
+                                <button onClick={handleExportExcel} className="inline-flex items-center text-sm font-medium text-slate-600 bg-white border border-slate-300 rounded-md px-2 sm:px-3 py-2 hover:bg-slate-50 transition">
+                                    <DownloadIcon /> <span className="hidden sm:inline">Exportar</span>
+                                </button>
+                            </div>
+                        </div>
+                    </nav>
+                </header>
+            );
+        };
+
+        // --- PAGES ---
+        const ChartCard = ({ title, children }) => (
+            <div className="bg-white p-4 sm:p-6 rounded-lg border border-slate-200 shadow-sm">
+                <h3 className="text-lg font-semibold text-slate-700 mb-4">{title}</h3>
+                <div className="h-64">{children}</div>
+            </div>
+        );
+
+        const DashboardPage = ({ products, recipes }) => {
+            const marginChartRef = useRef(null);
+            const priceChartRef = useRef(null);
+            const ingredientsChartRef = useRef(null);
+            const categoryChartRefs = useRef({});
+
+            const chartData = useMemo(() => {
+                if (!recipes || recipes.every(r => !r.ingredients || r.ingredients.length === 0)) {
+                    return null;
+                }
+                const categorizedRecipes = recipes.filter(r => r.category && r.ingredients.length > 0);
+                const categoryMetrics = {};
+                const marginsByCategoryAndDish = {};
+
+                categorizedRecipes.forEach(recipe => {
+                    const product = products.find(p => p.id === recipe.productId);
+                    if (!product || !product.sellingPrice) return;
+                    if (!categoryMetrics[recipe.category]) categoryMetrics[recipe.category] = { margins: [], prices: [], count: 0 };
+                    if (!marginsByCategoryAndDish[recipe.category]) marginsByCategoryAndDish[recipe.category] = [];
+                    
+                    const costWithoutVAT = calculateRecipeNetCost(recipe.ingredients);
+                    const costWithVAT = costWithoutVAT * (1 + VAT_RATE);
+                    const profit = product.sellingPrice - costWithVAT;
+                    const profitMargin = product.sellingPrice > 0 ? (profit / product.sellingPrice) * 100 : 0;
+
+                    categoryMetrics[recipe.category].margins.push(profitMargin);
+                    categoryMetrics[recipe.category].prices.push(product.sellingPrice);
+                    categoryMetrics[recipe.category].count++;
+                    marginsByCategoryAndDish[recipe.category].push({ name: product.name, margin: profitMargin });
+                });
+
+                for (const category in marginsByCategoryAndDish) {
+                    marginsByCategoryAndDish[category].sort((a, b) => b.margin - a.margin);
+                }
+
+                const profitMarginByCategory = Object.entries(categoryMetrics).map(([category, data]) => ({ category, avgMargin: data.margins.reduce((a, b) => a + b, 0) / data.count })).sort((a, b) => b.avgMargin - a.avgMargin);
+                const sellingPriceByCategory = Object.entries(categoryMetrics).map(([category, data]) => ({ category, avgPrice: data.prices.reduce((a, b) => a + b, 0) / data.count })).sort((a, b) => b.avgPrice - a.avgPrice);
+                
+                const ingredientFrequency = new Map();
+                recipes.forEach(recipe => {
+                    if (recipe.ingredients && Array.isArray(recipe.ingredients)) {
+                        const uniqueIngredientsInRecipe = new Set(
+                            recipe.ingredients.map(ing => ing && ing.name && ing.name.trim().toLowerCase()).filter(name => name)
+                        );
+                        uniqueIngredientsInRecipe.forEach(name => {
+                            ingredientFrequency.set(name, (ingredientFrequency.get(name) || 0) + 1);
+                        });
+                    }
+                });
+                
+                const topIngredients = Array.from(ingredientFrequency.entries())
+                    .sort(([, a], [, b]) => b - a)
+                    .slice(0, 10)
+                    .map(([name, count]) => [name.charAt(0).toUpperCase() + name.slice(1), count]);
+                
+                return { profitMarginByCategory, sellingPriceByCategory, topIngredients, marginsByCategoryAndDish };
+            }, [products, recipes]);
+            
+            useEffect(() => {
+                Chart.defaults.font.family = "'Inter', sans-serif";
+                Chart.defaults.color = '#64748b';
+                Chart.defaults.font.weight = '500';
+
+                const chartInstances = [];
+                const professionalColors = ['#3b82f6', '#ef4444', '#f97316', '#8b5cf6', '#10b981', '#f59e0b', '#ec4899', '#14b8a6', '#6366f1', '#06b6d4'];
+
+                const commonBarOptions = {
+                    maintainAspectRatio: false,
+                    responsive: true,
+                    plugins: { legend: { display: false } },
+                    scales: { 
+                        y: { beginAtZero: true, grid: { color: '#e2e8f0' } },
+                        x: { grid: { display: false } } 
+                    }
+                };
+
+                if (marginChartRef.current && chartData?.profitMarginByCategory?.length > 0) {
+                    chartInstances.push(new Chart(marginChartRef.current.getContext('2d'), { type: 'bar', data: { labels: chartData.profitMarginByCategory.map(d => d.category), datasets: [{ label: 'Margen de Ganancia (%)', data: chartData.profitMarginByCategory.map(d => d.avgMargin.toFixed(2)), backgroundColor: professionalColors }] }, options: commonBarOptions }));
+                }
+                if (priceChartRef.current && chartData?.sellingPriceByCategory?.length > 0) {
+                    chartInstances.push(new Chart(priceChartRef.current.getContext('2d'), { type: 'bar', data: { labels: chartData.sellingPriceByCategory.map(d => d.category), datasets: [{ label: 'Precio de Venta Promedio ($)', data: chartData.sellingPriceByCategory.map(d => d.avgPrice.toFixed(2)), backgroundColor: professionalColors.slice().reverse() }] }, options: commonBarOptions }));
+                }
+                if (ingredientsChartRef.current && chartData?.topIngredients?.length > 0) {
+                     chartInstances.push(new Chart(ingredientsChartRef.current.getContext('2d'), { type: 'bar', data: { labels: chartData.topIngredients.map(d => d[0]), datasets: [{ label: 'Usos en recetas', data: chartData.topIngredients.map(d => d[1]), backgroundColor: professionalColors }] }, options: { ...commonBarOptions, indexAxis: 'y' } }));
+                }
+                if (chartData?.marginsByCategoryAndDish) {
+                    Object.entries(chartData.marginsByCategoryAndDish).forEach(([category, dishes]) => {
+                        const canvas = categoryChartRefs.current[category];
+                        if (canvas) {
+                            chartInstances.push(new Chart(canvas.getContext('2d'), { 
+                                type: 'pie', 
+                                data: { labels: dishes.map(d => d.name), datasets: [{ label: 'Margen de Ganancia (%)', data: dishes.map(d => d.margin.toFixed(2)), backgroundColor: professionalColors }] }, 
+                                options: { 
+                                    maintainAspectRatio: false, 
+                                    responsive: true, 
+                                    plugins: { legend: { position: 'right', labels: { boxWidth: 12, font: { size: 12 } } } } 
+                                } 
+                            }));
+                        }
+                    });
+                }
+                return () => chartInstances.forEach(chart => chart.destroy());
+            }, [chartData]);
+            
+            if (!chartData) {
+                 return <div className="text-center py-12"><h2 className="text-2xl font-semibold text-slate-700">No hay datos para mostrar en el dashboard.</h2><p className="mt-2 text-slate-500">Crea productos, asígnales recetas, categorías y precios de venta para ver los análisis.</p></div>;
+            }
+            return (
+                <div className="space-y-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <ChartCard title="Rentabilidad por Categoría (Margen %)"><canvas ref={marginChartRef}></canvas></ChartCard>
+                        <ChartCard title="Precio de Venta Promedio por Categoría"><canvas ref={priceChartRef}></canvas></ChartCard>
+                        <ChartCard title="Top 10 Insumos/Recetas más Usados"><canvas ref={ingredientsChartRef}></canvas></ChartCard>
+                    </div>
+                    {Object.keys(chartData.marginsByCategoryAndDish).length > 0 && (
+                        <div className="bg-white p-4 sm:p-6 rounded-lg border border-slate-200 shadow-sm">
+                            <h3 className="text-xl font-semibold text-slate-800 mb-4">Análisis de Margen por Plato</h3>
+                            <div className="space-y-8">
+                                {Object.entries(chartData.marginsByCategoryAndDish).map(([category, dishes]) => (
+                                    <div key={category}>
+                                        <h4 className="text-lg font-medium text-slate-700 mb-3 border-b pb-2">{category}</h4>
+                                        <div className="h-80"><canvas ref={el => categoryChartRefs.current[category] = el}></canvas></div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+                </div>
+            );
+        };
+        
+        const ProductListPage = ({ products, setProducts, recipes, setRecipes, navigateTo }) => {
+            const [searchTerm, setSearchTerm] = useState('');
+            const [newProductName, setNewProductName] = useState('');
+            const [newProductPrice, setNewProductPrice] = useState('');
+
+            const handleAddProduct = () => {
+                if (!newProductName.trim()) {
+                    alert('Por favor, ingresa el nombre del producto.');
+                    return;
+                }
+                const newProduct = {
+                    id: `prod_${Date.now()}_${Math.random()}`,
+                    name: newProductName.trim(),
+                    sellingPrice: parseFloat(newProductPrice) || 0,
+                    hasRecipe: false,
+                };
+                setProducts(prevProducts => [...prevProducts, newProduct]);
+                setNewProductName('');
+                setNewProductPrice('');
+            };
+
+            const handlePriceChange = (id, newPrice) => {
+                setProducts(products.map(p => p.id === id ? { ...p, sellingPrice: parseFloat(newPrice) || 0 } : p));
+            };
+
+            const createRecipe = (product) => {
+                const recipeExists = recipes.some(r => r.productId === product.id);
+                if (!recipeExists) {
+                    const newRecipe = { productId: product.id, ingredients: [], category: '' };
+                    setRecipes(prevRecipes => [...prevRecipes, newRecipe]);
+                }
+                setProducts(prevProducts => prevProducts.map(p => p.id === product.id ? { ...p, hasRecipe: true } : p));
+                navigateTo('recipeDetail', { recipeId: product.id });
+            };
+
+            const filteredProducts = products.filter(p => p && p.name && p.name.toLowerCase().includes(searchTerm.toLowerCase()));
+
+            return (
+                <div>
+                    <h1 className="text-2xl font-bold mb-4">Lista de Productos (La Carta)</h1>
+                     <div className="bg-white p-4 rounded-lg border border-slate-200 shadow-sm mb-6">
+                        <h2 className="text-lg font-semibold text-slate-700 mb-3">Agregar Nuevo Producto a la Carta</h2>
+                        <div className="flex flex-col sm:flex-row gap-4">
+                            <input type="text" placeholder="Nombre del producto (ej: Pizza Margarita)" className="flex-grow p-2 border border-slate-300 rounded-md" value={newProductName} onChange={e => setNewProductName(e.target.value)} />
+                            <input type="number" placeholder="Precio de venta" className="w-full sm:w-40 p-2 border border-slate-300 rounded-md" value={newProductPrice} onChange={e => setNewProductPrice(e.target.value)} />
+                            <button onClick={handleAddProduct} className="bg-blue-600 text-white font-medium py-2 px-4 rounded-md hover:bg-blue-700 transition">Agregar Producto</button>
+                        </div>
+                    </div>
+
+                    <input type="text" placeholder="Buscar producto en la carta..." className="w-full p-2 border border-slate-300 rounded-md mb-4" value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
+                    <div className="bg-white border border-slate-200 rounded-lg shadow-sm overflow-hidden">
+                        <table className="w-full text-sm text-left text-slate-500">
+                            <thead className="text-xs text-slate-700 uppercase bg-slate-50">
+                                <tr>
+                                    <th scope="col" className="px-6 py-3">Producto</th>
+                                    <th scope="col" className="px-6 py-3">Precio de Venta</th>
+                                    <th scope="col" className="px-6 py-3">Acción</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {filteredProducts.map(product => (
+                                    <tr key={product.id} className="bg-white border-b hover:bg-slate-50">
+                                        <th scope="row" className="px-6 py-4 font-medium text-slate-900 whitespace-nowrap">{product.name}</th>
+                                        <td className="px-6 py-4"><input type="number" value={product.sellingPrice} onChange={e => handlePriceChange(product.id, e.target.value)} className="w-24 p-1 border rounded" /></td>
+                                        <td className="px-6 py-4">
+                                            {product.hasRecipe ? <button onClick={() => navigateTo('recipeDetail', { recipeId: product.id })} className="font-medium text-indigo-600 hover:underline">Ver/Editar Receta</button> : <button onClick={() => createRecipe(product)} className="font-medium text-emerald-600 hover:underline">Crear Receta</button>}
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                         {filteredProducts.length === 0 && (
+                            <div className="text-center py-8 text-slate-500">
+                                <p>No se encontraron productos. ¡Agrega el primer plato de tu carta!</p>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            );
+        };
+
+        const SavedRecipesPage = ({ products, recipes, setRecipes, navigateTo, setProducts }) => {
+            const [modalInfo, setModalInfo] = useState({ isOpen: false, recipeId: null });
+            const handleCategoryChange = (recipeId, category) => setRecipes(recipes.map(r => r.productId === recipeId ? { ...r, category } : r));
+            const handleDeleteClick = (recipeId) => setModalInfo({ isOpen: true, recipeId });
+            const confirmDelete = () => {
+                const recipeId = modalInfo.recipeId;
+                setRecipes(recipes.filter(r => r.productId !== recipeId));
+                setProducts(products.map(p => p.id === recipeId ? { ...p, hasRecipe: false } : p));
+                setModalInfo({ isOpen: false, recipeId: null });
+            };
+
+            const recipeDetails = recipes.map(recipe => {
+                const product = products.find(p => p.id === recipe.productId);
+                const cost = calculateRecipeNetCost(recipe.ingredients);
+                const margin = product && product.sellingPrice > 0 ? ((product.sellingPrice - cost * (1 + VAT_RATE)) / product.sellingPrice) * 100 : 0;
+                return { ...recipe, product, cost, margin };
+            });
+
+            return (
+                <div>
+                    <h1 className="text-2xl font-bold mb-4">Recetas Guardadas</h1>
+                    {recipeDetails.length > 0 ? (
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            {recipeDetails.map(({ product, cost, margin, category, productId }) => product && (
+                                <div key={productId} className="bg-white p-5 rounded-lg border border-slate-200 shadow-sm flex flex-col justify-between">
+                                <div>
+                                        <h3 className="text-lg font-semibold text-slate-800">{product.name}</h3>
+                                        <div className="text-sm text-slate-500 mt-2 space-y-1">
+                                            <p>Costo: ${cost.toFixed(2)}</p>
+                                            <p>Precio Venta: ${product.sellingPrice.toFixed(2)}</p>
+                                            <p>Margen: <span className={margin > 0 ? "text-green-600" : "text-red-600"}>{margin.toFixed(2)}%</span></p>
+                                        </div>
+                                        <select value={category || ''} onChange={(e) => handleCategoryChange(productId, e.target.value)} className="mt-4 w-full p-2 border border-slate-300 rounded-md text-sm">
+                                            <option value="">Sin Categoría</option>
+                                            {RECIPE_CATEGORIES.map(cat => <option key={cat} value={cat}>{cat}</option>)}
+                                        </select>
+                                    </div>
+                                    <div className="mt-4 flex justify-between items-center">
+                                        <button onClick={() => navigateTo('recipeDetail', { recipeId: productId })} className="text-sm font-medium text-indigo-600 hover:underline">Ver/Editar</button>
+                                        <button onClick={() => handleDeleteClick(productId)} className="text-sm font-medium text-red-600 hover:underline">Eliminar</button>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    ) : (
+                        <div className="text-center py-12 text-slate-500">
+                            <p className="text-lg">No hay recetas guardadas todavía.</p>
+                            <p>Ve a la sección de "Productos" para crear una receta para un plato de tu carta.</p>
+                        </div>
+                    )}
+                    <ConfirmModal isOpen={modalInfo.isOpen} onClose={() => setModalInfo({isOpen: false, recipeId: null})} onConfirm={confirmDelete} title="Eliminar Receta" message="¿Estás seguro de que quieres eliminar esta receta? Esta acción no se puede deshacer." />
+                </div>
+            );
+        };
+
+        const RecipeDetailPage = ({ recipeId, products, recipes, setRecipes, setProducts, navigateTo }) => {
+            const product = products.find(p => p.id === recipeId);
+            const [ingredients, setIngredients] = useState([]);
+            const [category, setCategory] = useState('');
+            const [searchTerm, setSearchTerm] = useState('');
+            const [isSearchVisible, setIsSearchVisible] = useState(false);
+
+            useEffect(() => {
+                const recipeData = recipes.find(r => r.productId === recipeId);
+                setIngredients(recipeData?.ingredients || []);
+                setCategory(recipeData?.category || '');
+            }, [recipeId, recipes]);
+
+            const availableIngredients = useMemo(() => {
+                // Sub-recipes are products categorized as 'Guarnición' or 'Salsas'
+                const subRecipes = products
+                    .filter(p => {
+                        const recipe = recipes.find(r => r.productId === p.id);
+                        return recipe && (recipe.category === 'Guarnición' || recipe.category === 'Salsas');
+                    })
+                    .map(p => {
+                        const recipe = recipes.find(r => r.productId === p.id);
+                        const cost = calculateRecipeNetCost(recipe.ingredients);
+                        return {
+                            id: p.id,
+                            name: p.name,
+                            isSubRecipe: true,
+                            cost: cost 
+                        };
+                    });
+
+                const rawIngredients = RAW_INGREDIENTS_LIST.map(name => ({
+                    id: name,
+                    name: name,
+                    isSubRecipe: false,
+                    cost: null
+                }));
+                
+                return [...rawIngredients, ...subRecipes];
+            }, [products, recipes]);
+            
+            const handleAddIngredient = (item) => {
+                let newIngredient;
+                if (item.isSubRecipe) {
+                    newIngredient = {
+                        id: `ing_${Date.now()}_${Math.random()}`,
+                        name: item.name,
+                        quantity: 1, // Default to 1 portion
+                        unit: 'porción',
+                        unitPrice: item.cost, // Use pre-calculated cost
+                        wastePercentage: 0,
+                        isSubRecipe: true,
+                        sourceProductId: item.id,
+                    };
+                } else {
+                    newIngredient = {
+                        id: `ing_${Date.now()}_${Math.random()}`,
+                        name: item.name,
+                        quantity: '',
+                        unit: 'unidad',
+                        unitPrice: '',
+                        wastePercentage: 0,
+                        isSubRecipe: false,
+                    };
+                }
+                setIngredients(prev => [...prev, newIngredient]);
+                setSearchTerm('');
+                setIsSearchVisible(false);
+            };
+            
+            const handleIngredientChange = (id, field, value) => {
+                const numValue = parseFloat(value);
+                setIngredients(prev => prev.map(ing => ing.id === id ? { ...ing, [field]: field === 'name' || field === 'unit' ? value : isNaN(numValue) ? '' : numValue } : ing));
+            };
+
+            const handleRemoveIngredient = id => setIngredients(prev => prev.filter(ing => ing.id !== id));
+            
+            const saveRecipe = () => {
+                const updatedRecipe = { productId: recipeId, ingredients, category };
+                setRecipes(prev => {
+                    const recipeIndex = prev.findIndex(r => r.productId === recipeId);
+                    if (recipeIndex > -1) {
+                        const newRecipes = [...prev];
+                        newRecipes[recipeIndex] = updatedRecipe;
+                        return newRecipes;
+                    }
+                    return [...prev, updatedRecipe];
+                });
+                alert('Receta guardada con éxito!');
+            };
+
+            const cost = calculateRecipeNetCost(ingredients);
+            const costWithVAT = cost * (1 + VAT_RATE);
+            const profitMargin = product && product.sellingPrice > 0 ? ((product.sellingPrice - costWithVAT) / product.sellingPrice) * 100 : 0;
+            
+            const filteredIngredients = useMemo(() => {
+                const currentIngredientNames = new Set((ingredients || []).map(ing => ing?.name?.toLowerCase()));
+                const trimmedSearch = searchTerm.trim().toLowerCase();
+
+                const results = availableIngredients.filter(item => {
+                    const lowerItemName = item.name.toLowerCase();
+                    if (currentIngredientNames.has(lowerItemName)) return false;
+                    // Prevent a recipe from being added to itself
+                    if (item.isSubRecipe && item.id === recipeId) return false;
+                    
+                    return trimmedSearch ? lowerItemName.includes(trimmedSearch) : true;
+                });
+                return results.slice(0, 10);
+            }, [searchTerm, ingredients, availableIngredients, recipeId]);
+
+
+            if (!product) return <div className="text-center py-12">Cargando receta... o producto no encontrado.</div>;
+
+            return (
+                <div>
+                    <div className="flex justify-between items-center mb-6">
+                        <h1 className="text-3xl font-bold text-slate-800">Receta: {product.name}</h1>
+                        <button onClick={saveRecipe} className="bg-blue-600 text-white font-semibold py-2 px-6 rounded-md hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">Guardar Cambios</button>
+                    </div>
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+                        <div className="lg:col-span-2 space-y-6">
+                            <div className="bg-white p-5 rounded-lg border shadow-sm">
+                                <h3 className="text-lg font-semibold text-slate-700 mb-3">Agregar Ingrediente a la Receta</h3>
+                                <div className="relative">
+                                    <input 
+                                        type="text" 
+                                        value={searchTerm} 
+                                        onChange={e => setSearchTerm(e.target.value)}
+                                        onFocus={() => setIsSearchVisible(true)}
+                                        onBlur={() => setTimeout(() => setIsSearchVisible(false), 200)}
+                                        placeholder="Buscar insumo (ej: Ajo) o receta (ej: Puré...)" 
+                                        className="w-full p-2 border border-slate-300 rounded-md" 
+                                    />
+                                    {isSearchVisible && (
+                                        <div className="absolute z-40 w-full bg-white border rounded-md mt-1 shadow-lg max-h-60 overflow-y-auto">
+                                            {filteredIngredients.map(item => (
+                                                <div key={item.id} className="flex justify-between items-center p-3 hover:bg-slate-50 cursor-pointer" onMouseDown={() => handleAddIngredient(item)}>
+                                                    <div>
+                                                        <span>{item.name}</span>
+                                                        {item.isSubRecipe && <span className="text-xs bg-indigo-100 text-indigo-700 font-medium px-2 py-0.5 rounded-full ml-2">Receta</span>}
+                                                    </div>
+                                                    <button className="bg-blue-100 text-blue-600 rounded-full w-7 h-7 flex items-center justify-center hover:bg-blue-200 font-bold transition-transform transform hover:scale-110"><PlusIcon /></button>
+                                                </div>
+                                            ))}
+                                            {filteredIngredients.length === 0 && searchTerm.trim() && (
+                                                <div className="p-3 text-sm text-slate-500">No se encontraron ingredientes.</div>
+                                            )}
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                            <div className="bg-white p-5 rounded-lg border shadow-sm">
+                                <h3 className="text-lg font-semibold text-slate-700 mb-4">Ingredientes de la Receta</h3>
+                                <div className="space-y-4">
+                                    {ingredients.length > 0 ? ingredients.map(ing => {
+                                        const isSub = !!ing.isSubRecipe;
+                                        return (
+                                        <div key={ing.id} className={`border p-3 rounded-lg space-y-3 ${isSub ? 'bg-indigo-50 border-indigo-200' : 'bg-slate-50 border-slate-200'}`}>
+                                            <div className="flex justify-between items-center">
+                                                <p className="font-semibold text-slate-800">{ing.name} {isSub && <span className="text-xs bg-indigo-100 text-indigo-700 font-medium px-2 py-0.5 rounded-full ml-1">Receta</span>}</p>
+                                                <button onClick={() => handleRemoveIngredient(ing.id)} className="text-slate-400 hover:text-red-600 p-1 rounded-full hover:bg-red-100 transition-colors"><TrashIcon /></button>
+                                            </div>
+                                            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
+                                                <div>
+                                                    <label className="block text-xs font-medium text-slate-500 mb-1">Cant.</label>
+                                                    <input type="number" placeholder="Ej: 100" value={ing.quantity} onChange={e => handleIngredientChange(ing.id, 'quantity', e.target.value)} className="w-full p-1.5 border border-slate-300 rounded-md" />
+                                                </div>
+                                                <div>
+                                                    <label className="block text-xs font-medium text-slate-500 mb-1">Unidad</label>
+                                                    <select value={ing.unit} onChange={e => handleIngredientChange(ing.id, 'unit', e.target.value)} className="w-full p-1.5 border border-slate-300 rounded-md bg-white disabled:bg-slate-100" disabled={isSub}>
+                                                        {isSub ? <option value="porción">porción</option> : UNITS_OF_MEASURE.map(u => <option key={u} value={u}>{u}</option>)}
+                                                    </select>
+                                                </div>
+                                                <div>
+                                                    <label className="block text-xs font-medium text-slate-500 mb-1">{isSub ? 'Costo Receta' : 'Precio Compra'}</label>
+                                                    <input type="number" placeholder="Ej: 15.50" value={ing.unitPrice} onChange={e => handleIngredientChange(ing.id, 'unitPrice', e.target.value)} className="w-full p-1.5 border border-slate-300 rounded-md disabled:bg-slate-100" disabled={isSub} />
+                                                </div>
+                                                <div>
+                                                    <label className="block text-xs font-medium text-slate-500 mb-1">Merma %</label>
+                                                    <input type="number" placeholder="Ej: 10" value={ing.wastePercentage} onChange={e => handleIngredientChange(ing.id, 'wastePercentage', e.target.value)} className="w-full p-1.5 border border-slate-300 rounded-md disabled:bg-slate-100" disabled={isSub}/>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}) : (
+                                        <div className="text-center py-6 text-slate-500">
+                                            <p>Aún no hay ingredientes en esta receta.</p>
+                                            <p className="text-xs">Usa el buscador de arriba para agregarlos.</p>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                        <div className="lg:sticky lg:top-24 h-fit">
+                            <div className="bg-white p-5 rounded-lg border shadow-sm space-y-4">
+                                <h3 className="text-xl font-bold text-slate-800 mb-2">Análisis Financiero</h3>
+                                <div className="space-y-2 text-sm text-slate-600">
+                                    <div className="flex justify-between items-center"><p>Costo Neto:</p><p className="font-medium text-slate-800">${cost.toFixed(2)}</p></div>
+                                    <div className="flex justify-between items-center"><p>IVA ({VAT_RATE * 100}%):</p><p className="font-medium text-slate-800">${(cost * VAT_RATE).toFixed(2)}</p></div>
+                                    <hr/>
+                                    <div className="flex justify-between items-center text-base"><p className="font-semibold">Costo Total:</p><p className="font-bold text-slate-900">${costWithVAT.toFixed(2)}</p></div>
+                                </div>
+                                <hr/>
+                                <div className="space-y-2">
+                                    <label className="block text-sm font-medium text-slate-700">Precio de Venta</label>
+                                    <input type="number" value={product.sellingPrice} onChange={e => setProducts(products.map(p => p.id === recipeId ? { ...p, sellingPrice: parseFloat(e.target.value) || 0 } : p))} className="w-full p-2 border border-slate-300 rounded-md" />
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="block text-sm font-medium text-slate-700">Categoría</label>
+                                    <select value={category || ''} onChange={(e) => setCategory(e.target.value)} className="w-full p-2 border border-slate-300 rounded-md text-sm">
+                                        <option value="">Sin Categoría</option>
+                                        {RECIPE_CATEGORIES.map(cat => <option key={cat} value={cat}>{cat}</option>)}
+                                    </select>
+                                </div>
+                                <div className={`p-3 rounded-md text-center ${profitMargin > 30 ? 'bg-green-100 text-green-800' : profitMargin > 0 ? 'bg-amber-100 text-amber-800' : 'bg-red-100 text-red-800'}`}>
+                                    <p className="text-sm font-medium">Margen de Ganancia</p>
+                                    <p className="text-2xl font-bold">{profitMargin.toFixed(2)}%</p>
+                                </div>
+                                <button onClick={() => navigateTo('savedRecipes')} className="w-full bg-white text-slate-700 font-semibold py-2.5 rounded-md border border-slate-300 hover:bg-slate-50 transition-colors">Volver a Recetas</button>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+        
+        // --- MAIN APP ---
+        const App = () => {
+            // Products are the sellable items on the menu. Defaults to an empty list.
+            const [products, setProducts] = useLocalStorage('products', []);
+            // Recipes are linked to products.
+            const [recipes, setRecipes] = useLocalStorage('recipes', []);
+            
+            const [currentPage, setCurrentPage] = useState({ page: 'dashboard', props: {} });
+            
+            useEffect(() => {
+                // If there are no products, guide the user to the product list page first.
+                if (products.length === 0 && currentPage.page !== 'productList') {
+                   navigateTo('productList');
+                }
+            }, [products, currentPage.page]);
+            
+            const navigateTo = (page, props = {}) => {
+                setCurrentPage({ page, props })
+            };
+            
+            const handleExportExcel = () => {
+                try {
+                    const productsSheet = XLSX.utils.json_to_sheet(products);
+                    const recipesSheet = XLSX.utils.json_to_sheet(recipes.map(r => ({ ...r, ingredients: JSON.stringify(r.ingredients) })));
+                    const workbook = XLSX.utils.book_new();
+                    XLSX.utils.book_append_sheet(workbook, productsSheet, "Productos");
+                    XLSX.utils.book_append_sheet(workbook, recipesSheet, "Recetas");
+                    XLSX.writeFile(workbook, "datos_costos_recetas.xlsx");
+                } catch(e) {
+                    console.error("Error exporting to Excel:", e);
+                    alert("Hubo un error al exportar los datos.");
+                }
+            };
+
+            const handleImportExcel = (event) => {
+                const file = event.target.files?.[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    try {
+                        const data = e.target.result;
+                        const workbook = XLSX.read(data, { type: 'binary' });
+                        const productsData = XLSX.utils.sheet_to_json(workbook.Sheets["Productos"]);
+                        const recipesData = XLSX.utils.sheet_to_json(workbook.Sheets["Recetas"]);
+                        
+                        // Basic validation
+                        if (Array.isArray(productsData)) setProducts(productsData);
+                        if (Array.isArray(recipesData)) {
+                             const parsedRecipes = recipesData.map(r => {
+                                try {
+                                    const ingredients = JSON.parse(r.ingredients);
+                                    return { ...r, ingredients: Array.isArray(ingredients) ? ingredients : [] };
+                                } catch (e) {
+                                    return { ...r, ingredients: [] };
+                                }
+                            });
+                            setRecipes(parsedRecipes);
+                        }
+                        alert("Datos importados con éxito!");
+                        navigateTo('dashboard');
+                    } catch (err) {
+                        console.error("Error al importar:", err);
+                        alert("Error al importar el archivo. Asegúrate de que tiene las hojas 'Productos' y 'Recetas' con el formato correcto.");
+                    }
+                };
+                reader.readAsBinaryString(file);
+                event.target.value = ''; // Reset file input
+            };
+
+            const renderPage = () => {
+                const { page, props } = currentPage;
+                
+                switch (page) {
+                    case 'dashboard': return <DashboardPage products={products} recipes={recipes} />;
+                    case 'productList': return <ProductListPage products={products} setProducts={setProducts} recipes={recipes} setRecipes={setRecipes} navigateTo={navigateTo} />;
+                    case 'savedRecipes': return <SavedRecipesPage products={products} recipes={recipes} setRecipes={setRecipes} navigateTo={navigateTo} setProducts={setProducts} />;
+                    case 'recipeDetail': return <RecipeDetailPage {...props} products={products} recipes={recipes} setRecipes={setRecipes} setProducts={setProducts} navigateTo={navigateTo} />;
+                    default: return <DashboardPage products={products} recipes={recipes} />;
+                }
+            };
+
+            return (
+                <>
+                    <Header navigateTo={navigateTo} currentPage={currentPage.page} handleImportExcel={handleImportExcel} handleExportExcel={handleExportExcel} />
+                    <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                        {renderPage()}
+                    </main>
+                </>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+
+    </script>
+</body>
+</html>

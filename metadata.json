@@ -1,0 +1,5 @@
+{
+  "name": "Calculadora de Costo de Recetas",
+  "description": "Una aplicación web para cargar recetas y calcular el costo de los platos de un restaurante, permitiendo gestionar productos, recetas y rentabilidad.",
+  "requestFramePermissions": []
+}
