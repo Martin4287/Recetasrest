@@ -15,6 +15,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Inter', sans-serif; }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #94a3b8; border-radius: 3px;}
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #475569; }
     </style>
     <!-- Import Map para React -->
     <script type="importmap">
@@ -28,7 +32,7 @@
     <!-- Babel para compilar JSX en el navegador -->
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 </head>
-<body class="bg-slate-50 text-slate-900 antialiased">
+<body class="bg-slate-100 text-slate-900 antialiased">
     <div id="root"></div>
     
     <script type="text/babel" data-type="module">
@@ -42,24 +46,45 @@
         const UNITS_OF_MEASURE = ["g", "kg", "ml", "l", "unidad", "cda", "cdita", "taza", "pizca", "porción"];
         const RECIPE_CATEGORIES = [
             "Plato Principal", "Entrada", "Postre", "Ensalada", "Pasta", 
-            "Guarnición", "Salsas", "Cafetería", "Bebida de venta", "Bebida con preparación", 
-            "Sin Tacc", "Vinos", "Espumantes"
+            "Guarnición", "Salsas", "Producción", "Cafetería", "Bebida de venta", "Bebida con preparación", 
+            "Sin Tacc", "Vinos", "Espumantes", "Sin Analizar"
         ];
-        // This is the definitive list of raw ingredients (Insumos) for building recipes.
         const RAW_INGREDIENTS_LIST = ["Abadejo", "Aceite de girasol x 5 ltr", "Aceite oliva x 5 ltr", "Aceitunas negras x 5 kgr", "Aceitunas verdes x 5 kgr", "Acelga", "Aceto Balsamico", "Acuarius manzana", "Acuarius naranja", "Agua con gas", "Agua sin gas", "Aji molido", "Ajo", "Alambrado Bonarda", "Alambrado Malbec", "Alaris Dulce", "Albahaca", "Alcaparras 730gr", "Alcohol para fajinar", "Alfajor de almendras sin tacc", "Alma Mora Malbec", "Almendrado x 30 u", "Americana", "Anana en almibar x 800 gr", "Aperol x 750 cc", "Apio", "Arroz parboil", "Arvejas", "Atomizador con gatillo", "Azucar en sobres x 800", "Azucar impalpable", "Azucar negra", "Azucar x 25 klgr", "Baccardi Blanco", "Baccardi Dorado", "Baileys", "Banana", "Baño de chocolate x 5 k", "Baron B Extra brut", "Barra Ricecrem", "Batata", "Beefeater", "Berenjenas", "Bife de chorizo", "Bioquitol x 5 ltr", "Blem o lustramuebles", "Blenders 1 Litro", "Bobina de papel 200 mts x 2 uni", "Boldo", "Bolsa de arranque 20 x 25", "Bolsa de arranque 30 x 40", "Bolsa de arranque 40 x 50", "Bolsa de arranque 40 x 70", "Bolsa de arranque 50 x 70", "Bolsa de consorcio x 50", "Bombon Suizo x 8 u", "Bondiola de cerdo", "Brocoli", "Burnetts Gin x 1l", "Cachaca Belho Barreiro", "Cafe de filtro", "cafe en capsulas", "Cafe en granos", "Calabaza", "Calamar entero", "Caldo de carne", "Caldo de gallina", "Caldo de verdura", "Campari", "Canelones Sin Tacc", "Capsulas descafeinadas", "Carne picada", "Carré de cerdo pieza entera", "Cebolla", "Cebolla de verdeo", "Cereales con azucar x 3,4 kgr", "Cereales sin azucar x 3,4 kgr", "Champignon cumana x 2,84 k", "Champiñones lata x 800 gr cumana", "Chandon Ex Br", "Cheddar 160 fetas", "Chernia", "Chivas 12", "Choclo en lata 0,8 kgr", "Chocolate submarino x 50", "Chorizo colorado", "Coca 2,25", "Coca cola", "Coca Light 2,25", "Coca Zero", "Coca Zero 2,25", "Coco rallado", "Cola de langostino", "Coliflor", "Colorante amarillo 5lt", "Colorante caramelo para pan 2lt", "Colorante negro", "Cookies de chocolate sin TACC", "Crema Chant x 250gr", "crema de leche x 4 ltr", "Cuadril", "Desengrasante", "Detergente x 5lt", "DON", "Don David Malbec", "DON x 4", "Dulce de batata x 5k", "Dulce de leche clasico x 5k", "Dulce de leche porcionado 108", "Dulce de leche repostero EL NONO", "Dulce de membrillo", "Durazno en almibar x 800 gr", "DV Catena Malbec", "Edulcorante", "EG Cabernet Franc", "EG Chardonnay", "EG Gran Reserva Charnonnay", "EG Gran Reserva Malbec", "EG Malbec", "EG Pequeñas Produccione Sauv Blanc", "EG Pequeñas Producciones Cab Franc", "EG Pequeñas Producciones Malbec", "EG Pequeñas Producciones Pinot Noir", "EGG Reserva Malbec", "EGPP Malbec x 4", "Emilia Chardonnay", "Emilia Malbec", "Escarbadientes ensobrados x 1000", "Escencia de limón", "Escencia de manteca 2lt", "Escoba con palo", "Esencia de limón x 1ltr", "Esencia de Naranja x 1ltr", "Esencia de vainilla", "Espinaca", "Esponjas de acero", "Esponjas lavaplatos", "Fanta", "Fecula de Maiz", "Fernet Branca", "FG Blanco Dulce", "FG Chardonnay", "FG Malbec", "FG Rose Malbec", "Finca la linda Malbec", "Flanera aluminio x 100", "Folios A4 transparentes", "Fond de Cave Malbec", "Frutilla", "Frutos de mar", "Gancia", "Garbanzos", "Gengibre", "Grasa x 5k", "Harina 0000 x 25k", "Harina de Salvado", "Heineken Lata", "Helado de Americana", "Helado de Chocolate", "Helado de dulce de leche", "Helado de frutilla", "Hielo", "Huevo", "Huevo liquido", "Imperial Lata", "J&B", "J&B x 750 cc", "Jack Daniels x 750 cc", "Jalea en caliente", "Jalea en frío", "Jameson x 1000 cc", "Jamon cocido", "Jamon crudo", "Jarabe tipo Miel", "Jengibre", "Jugo tang naranja x 20 unidades", "Jugo tang pomelo x 20 unidades", "JW Black Label", "JW Red Label", "Ketchup porcionada", "Kiwi", "Langostinos sin cabeza", "lapicera azul", "Latittud Charnonnay", "Lavandina x 5lt", "Leche de almendras Silk", "Leche entera LV x 12", "Leche LV Descremada X 12", "Lechuga", "Lechuga Morada", "Lemoccelo", "Lentejon", "Levadura x 0,5", "Levite Manzana", "Levite naranja", "Levite pomelo", "Limas", "Limon", "Limoncello 1,5 ltr", "Lomo", "Luigi Bosca", "Luigi Bosca Cabernet", "Luigi Bosca Malbec", "LW Red Label", "Malta", "Mandarina", "Manga de 20cm puede ser descardable", "Maní pelado para bar", "Manteca pilon 5k", "Manteca porcionada 144 x 10 gr", "Manzana Roja", "Manzana verde", "Manzanilla", "Margarina batida x 10 kgr", "Margarina hojaldre no vegetal", "Margarina para hojaldre", "Margarina x 5k", "Martini Rosso", "Matambre", "Matecocido", "mayonesa porcionada", "mayonesa x 3k", "MEG x 4", "Mejillón pelado", "Membrillo", "Membrillo x 10k", "Merluza", "Mermelada de ciruela porcionada", "Mermelada de durazno light porc", "Mermelada de durazno porcionada", "Mermelada de fruti light porc", "Mermelada de frutilla porcionada", "Miel porcionada", "Mix de frutos de mar", "Mix de frutos secos", "Moldes para budin de carton", "Moldes para pan dulce x 100 gr", "Moldes para pan dulce x 500 gr", "Moldes para pan dulce x 750 gr", "Monchenot ExBr", "Mopa y palo", "Morron rojo", "Morron verde", "Mozzarella", "Naranja", "Neskuik x 4gkr", "Norton gambei Ex Br", "Nueces", "Nugget de pollo", "Ojo de Bife", "Paleta", "Palitos Snack para bar", "Palta", "Pan de Hamburguesa", "Pan de Molde", "Panceta ahumada", "Papa negra", "Papas Snack para el bar", "Papel film", "Peceto", "Pepinillos", "Pepino", "Peras", "Perejil", "Pimenton dulce", "Pimienta blanca", "Pimienta negra en grano", "Pisco", "Pollo", "Polvo de hornear", "Pomelo", "Porcion de coco sin tacc", "Porotos Alubia", "Porotos Negros", "Premezcla de vainilla satin", "President Blend", "Puerro", "Pulpa de frutilla", "Queso azul", "Queso barra", "Queso Crema 3k", "Queso fresco o cuartirolo", "Queso Sardo horma", "Quiche de Puerro y pollo", "Rebozador x 5 kilos", "Rejillas para cocina", "Repollo colorado", "Revolvedores de plastico trago largo", "Roast Beef", "Rollo termico para comandera", "Rucula", "Saint felicient Malbec", "sal fina x 500gr", "Salame", "Salamin picado fino", "Salchicha", "Salmón blanco", "Salsa caesar 0,9 kgr", "Salsa de chocolate", "Salsa de soja", "San Felipe Roble Chardonnay", "San Telmo ExBr", "Sandwich j q sin tacc", "Santa Julia Chennin Lata", "Santa Julia Malbec", "Secador de piso", "Sprite", "Sprite 2,25", "Sprite zero", "Sprite Zero 2,25", "Stevia en sobres x 100", "Tanqueray Gin x 700 cc", "Tapa de empanada copetin", "Tapa de empanada roticera para freir", "Te clasico", "Té de boldo", "Té de Manzanilla", "Te Mezcla de hierbas", "Tequila Jose Cuervo", "Tijera", "Tilo", "Tomate cherry", "Tomate redondo", "Tomate triturado", "Tonica", "Tostadas sin TACC", "Trapiche Malbec", "Trapo de piso", "Triple Sec", "Trumpeter Chardonnay", "Trumpeter Malbec", "Tubo de calamar para Rabas", "Uco Box Malbec", "Uvas", "Uxmal Chardonnay", "Uxmal malbec", "vasos descartable 500 cc", "Vinagre", "Vino Blanco tetra", "Vino Tinto tetra", "Whisky cocina W", "White Horse x 750 cc", "Yogurt frutilla entero", "Yogurt frutilla Light", "Yogurt vainilla entero", "Yogurt vainilla Light", "Zanahoria", "zapallito verde", "Zapallo anco", "Zuccardi Q Cab Franc", "Zuccardi Q Malbec", "Zucchini", "Zuelo orig bot 12 x 500 ml", "EG Espumante EX BR", "Saint felicien Pinot Noir", "Coca 1.5", "Coca Zero 1.5", "Sprite 1.5", "Servilletas con logo papel x 1500", "Laurel", "Curcuma", "Gin Gordon´s", "Saint Felicien Souv Blanc", "Tia Maria"];
 
         // --- HELPER FUNCTIONS ---
-        const calculateRecipeNetCost = (ingredients) => {
-            if (!ingredients || !Array.isArray(ingredients) || ingredients.length === 0) {
-                return 0;
-            }
+        const formatCurrency = (value) => new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' }).format(value || 0);
+        
+        const calculateRecetaNetCost = (ingredients, costsMap) => {
+            if (!ingredients || ingredients.length === 0) return 0;
             return ingredients.reduce((sum, ing) => {
+                const costData = costsMap.get(ing.name);
+                const unitPrice = costData ? costData.cost : 0;
                 const quantity = parseFloat(ing.quantity) || 0;
-                const unitPrice = parseFloat(ing.unitPrice) || 0;
                 const waste = 1 - (parseFloat(ing.wastePercentage) || 0) / 100;
                 if (waste <= 0) return sum;
                 return sum + (quantity * unitPrice / waste);
             }, 0);
+        };
+
+        const getCategoryColorClass = (category) => {
+            switch (category) {
+                case 'Plato Principal': return 'bg-blue-50';
+                case 'Entrada': return 'bg-green-50';
+                case 'Postre': return 'bg-rose-50';
+                case 'Ensalada': return 'bg-lime-50';
+                case 'Pasta': return 'bg-amber-50';
+                case 'Guarnición': return 'bg-yellow-50';
+                case 'Salsas': return 'bg-orange-50';
+                case 'Producción': return 'bg-purple-50';
+                case 'Cafetería': return 'bg-stone-50';
+                case 'Bebida de venta': return 'bg-cyan-50';
+                case 'Bebida con preparación': return 'bg-teal-50';
+                case 'Sin Tacc': return 'bg-indigo-50';
+                case 'Vinos': return 'bg-red-50';
+                case 'Espumantes': return 'bg-fuchsia-50';
+                case 'Sin Analizar': return 'bg-gray-50';
+                default: return 'bg-white';
+            }
         };
 
         // --- HOOKS ---
@@ -67,16 +92,10 @@
             const [storedValue, setStoredValue] = useState(() => {
                 try {
                     const item = window.localStorage.getItem(key);
-                    if (!item) {
-                        return typeof initialValue === 'function' ? initialValue() : initialValue;
-                    }
-                    const parsed = JSON.parse(item);
-                    return Array.isArray(parsed) ? parsed : (typeof initialValue === 'function' ? initialValue() : initialValue);
-                } catch (error) {
-                    console.error(`Error reading localStorage key “${key}”:`, error);
-                    return typeof initialValue === 'function' ? initialValue() : initialValue;
-                }
+                    return item ? JSON.parse(item) : initialValue;
+                } catch (error) { console.error(error); return initialValue; }
             });
+
             const setValue = (value) => {
                 try {
                     const valueToStore = value instanceof Function ? value(storedValue) : value;
@@ -87,565 +106,383 @@
             return [storedValue, setValue];
         }
 
-        // --- COMPONENTS ---
-        const ConfirmModal = ({ isOpen, onClose, onConfirm, title, message }) => {
-            if (!isOpen) return null;
-            return (
-                <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4" onClick={onClose}>
-                    <div className="bg-white rounded-lg shadow-xl w-full max-w-md p-6" onClick={e => e.stopPropagation()}>
-                        <h3 className="text-lg font-semibold text-slate-800">{title}</h3>
-                        <p className="mt-2 text-sm text-slate-600">{message}</p>
-                        <div className="mt-6 flex justify-end space-x-3">
-                            <button onClick={onClose} className="px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-md hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">Cancelar</button>
-                            <button onClick={onConfirm} className="px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">Eliminar</button>
-                        </div>
-                    </div>
-                </div>
-            );
-        };
-
-        const UtensilsIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-6 w-6 text-slate-800"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2v0a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3z"/></svg>;
-        const HomeIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5 mr-2"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>;
-        const ListChecksIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5 mr-2"><path d="m16 6 2 2 4-4"/><path d="m16 12 2 2 4-4"/><path d="m16 18 2 2 4-4"/><path d="M10 6H3"/><path d="M10 12H3"/><path d="M10 18H3"/><path d="M6 6h.01"/><path d="M6 12h.01"/><path d="M6 18h.01"/></svg>;
-        const BookOpenIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5 mr-2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>;
+        // --- ICONS ---
+        const UtensilsIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-8 w-8 text-slate-800"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2v0a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3z"/></svg>;
+        const DollarSignIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5 mr-3"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>;
+        const BookOpenIcon = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>;
         const UploadIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4 mr-1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>;
         const DownloadIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4 mr-1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>;
         const PlusIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>;
         const TrashIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>;
-        
-        const Header = ({ navigateTo, currentPage, handleImportExcel, handleExportExcel }) => {
-            const navItems = [
-                { page: 'dashboard', label: 'Dashboard', icon: <HomeIcon /> },
-                { page: 'productList', label: 'Productos', icon: <ListChecksIcon /> },
-                { page: 'savedRecipes', label: 'Recetas', icon: <BookOpenIcon /> },
-            ];
-            const handleLogoClick = () => navigateTo('dashboard');
-            return (
-                <header className="bg-white border-b border-slate-200 sticky top-0 z-20">
-                    <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                        <div className="flex justify-between items-center h-16">
-                            <div className="flex items-center cursor-pointer" onClick={handleLogoClick}>
-                               <UtensilsIcon />
-                                <span className="font-semibold text-lg ml-2 text-slate-800 tracking-tight">Costo de Platos</span>
-                            </div>
-                            <div className="flex items-center space-x-1 sm:space-x-2">
-                                 {navItems.map(item => {
-                                    const isActive = currentPage === item.page;
-                                    return (
-                                        <button key={item.page} onClick={() => navigateTo(item.page)} className={`inline-flex items-center px-2 sm:px-3 py-2 rounded-md text-sm font-medium transition-colors duration-150 ${ isActive ? 'bg-slate-100 text-slate-900' : 'text-slate-500 hover:bg-slate-100 hover:text-slate-900' }`} >
-                                            {item.icon} {item.label}
-                                        </button>
-                                    );
-                                })}
-                                <div className="h-6 w-px bg-slate-200 mx-2"></div>
-                                <label htmlFor="import-excel-header" className="cursor-pointer inline-flex items-center text-sm font-medium text-slate-600 bg-white border border-slate-300 rounded-md px-2 sm:px-3 py-2 hover:bg-slate-50 transition">
-                                    <UploadIcon /> <span className="hidden sm:inline">Importar</span>
-                                </label>
-                                <input id="import-excel-header" type="file" className="hidden" accept=".xlsx, .xls" onChange={handleImportExcel} />
-                                <button onClick={handleExportExcel} className="inline-flex items-center text-sm font-medium text-slate-600 bg-white border border-slate-300 rounded-md px-2 sm:px-3 py-2 hover:bg-slate-50 transition">
-                                    <DownloadIcon /> <span className="hidden sm:inline">Exportar</span>
+        const ChevronLeftIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" /></svg>;
+
+        // --- COMPONENTS ---
+        const Header = ({ onImport, onExport, hasUnexportedChanges }) => (
+            <header className="bg-white/80 backdrop-blur-md sticky top-0 z-40 border-b border-slate-200">
+                <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="flex items-center justify-between h-16">
+                        <div className="flex items-center space-x-4">
+                            <UtensilsIcon />
+                            <h1 className="text-xl font-bold text-slate-800">Calculadora de Costos de Recetas</h1>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                            <button onClick={onImport} className="inline-flex items-center justify-center px-3 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-md shadow-sm hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                                <UploadIcon /> Importar
+                            </button>
+                            <div className="relative">
+                                <button onClick={onExport} className="inline-flex items-center justify-center px-3 py-2 text-sm font-medium text-white bg-indigo-600 border border-transparent rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                                    <DownloadIcon /> Exportar
                                 </button>
+                                {hasUnexportedChanges && (
+                                    <span className="absolute top-0 right-0 flex h-3 w-3 -mt-1 -mr-1">
+                                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-sky-400 opacity-75"></span>
+                                      <span className="relative inline-flex rounded-full h-3 w-3 bg-sky-500"></span>
+                                    </span>
+                                )}
                             </div>
                         </div>
-                    </nav>
-                </header>
-            );
-        };
-
-        // --- PAGES ---
-        const ChartCard = ({ title, children }) => (
-            <div className="bg-white p-4 sm:p-6 rounded-lg border border-slate-200 shadow-sm">
-                <h3 className="text-lg font-semibold text-slate-700 mb-4">{title}</h3>
-                <div className="h-64">{children}</div>
-            </div>
+                    </div>
+                </div>
+            </header>
         );
-
-        const DashboardPage = ({ products, recipes }) => {
-            const marginChartRef = useRef(null);
-            const priceChartRef = useRef(null);
-            const ingredientsChartRef = useRef(null);
-            const categoryChartRefs = useRef({});
-
-            const chartData = useMemo(() => {
-                if (!recipes || recipes.every(r => !r.ingredients || r.ingredients.length === 0)) {
-                    return null;
-                }
-                const categorizedRecipes = recipes.filter(r => r.category && r.ingredients.length > 0);
-                const categoryMetrics = {};
-                const marginsByCategoryAndDish = {};
-
-                categorizedRecipes.forEach(recipe => {
-                    const product = products.find(p => p.id === recipe.productId);
-                    if (!product || !product.sellingPrice) return;
-                    if (!categoryMetrics[recipe.category]) categoryMetrics[recipe.category] = { margins: [], prices: [], count: 0 };
-                    if (!marginsByCategoryAndDish[recipe.category]) marginsByCategoryAndDish[recipe.category] = [];
-                    
-                    const costWithoutVAT = calculateRecipeNetCost(recipe.ingredients);
-                    const costWithVAT = costWithoutVAT * (1 + VAT_RATE);
-                    const profit = product.sellingPrice - costWithVAT;
-                    const profitMargin = product.sellingPrice > 0 ? (profit / product.sellingPrice) * 100 : 0;
-
-                    categoryMetrics[recipe.category].margins.push(profitMargin);
-                    categoryMetrics[recipe.category].prices.push(product.sellingPrice);
-                    categoryMetrics[recipe.category].count++;
-                    marginsByCategoryAndDish[recipe.category].push({ name: product.name, margin: profitMargin });
-                });
-
-                for (const category in marginsByCategoryAndDish) {
-                    marginsByCategoryAndDish[category].sort((a, b) => b.margin - a.margin);
-                }
-
-                const profitMarginByCategory = Object.entries(categoryMetrics).map(([category, data]) => ({ category, avgMargin: data.margins.reduce((a, b) => a + b, 0) / data.count })).sort((a, b) => b.avgMargin - a.avgMargin);
-                const sellingPriceByCategory = Object.entries(categoryMetrics).map(([category, data]) => ({ category, avgPrice: data.prices.reduce((a, b) => a + b, 0) / data.count })).sort((a, b) => b.avgPrice - a.avgPrice);
-                
-                const ingredientFrequency = new Map();
-                recipes.forEach(recipe => {
-                    if (recipe.ingredients && Array.isArray(recipe.ingredients)) {
-                        const uniqueIngredientsInRecipe = new Set(
-                            recipe.ingredients.map(ing => ing && ing.name && ing.name.trim().toLowerCase()).filter(name => name)
-                        );
-                        uniqueIngredientsInRecipe.forEach(name => {
-                            ingredientFrequency.set(name, (ingredientFrequency.get(name) || 0) + 1);
-                        });
-                    }
-                });
-                
-                const topIngredients = Array.from(ingredientFrequency.entries())
-                    .sort(([, a], [, b]) => b - a)
-                    .slice(0, 10)
-                    .map(([name, count]) => [name.charAt(0).toUpperCase() + name.slice(1), count]);
-                
-                return { profitMarginByCategory, sellingPriceByCategory, topIngredients, marginsByCategoryAndDish };
-            }, [products, recipes]);
+        
+        const InsumosCostosPage = ({ insumoCosts, setInsumoCosts, rawIngredients, setRawIngredients }) => {
+            const [searchTerm, setSearchTerm] = useState('');
             
-            useEffect(() => {
-                Chart.defaults.font.family = "'Inter', sans-serif";
-                Chart.defaults.color = '#64748b';
-                Chart.defaults.font.weight = '500';
+            const sortedInsumos = useMemo(() => [...rawIngredients].sort((a, b) => a.localeCompare(b)), [rawIngredients]);
 
-                const chartInstances = [];
-                const professionalColors = ['#3b82f6', '#ef4444', '#f97316', '#8b5cf6', '#10b981', '#f59e0b', '#ec4899', '#14b8a6', '#6366f1', '#06b6d4'];
+            const filteredInsumos = sortedInsumos.filter(insumo =>
+                insumo.toLowerCase().includes(searchTerm.toLowerCase())
+            );
 
-                const commonBarOptions = {
-                    maintainAspectRatio: false,
-                    responsive: true,
-                    plugins: { legend: { display: false } },
-                    scales: { 
-                        y: { beginAtZero: true, grid: { color: '#e2e8f0' } },
-                        x: { grid: { display: false } } 
-                    }
-                };
+            const handleCostChange = (insumoName, cost) => {
+                const newCosts = { ...insumoCosts, [insumoName]: parseFloat(cost) || 0 };
+                setInsumoCosts(newCosts);
+            };
 
-                if (marginChartRef.current && chartData?.profitMarginByCategory?.length > 0) {
-                    chartInstances.push(new Chart(marginChartRef.current.getContext('2d'), { type: 'bar', data: { labels: chartData.profitMarginByCategory.map(d => d.category), datasets: [{ label: 'Margen de Ganancia (%)', data: chartData.profitMarginByCategory.map(d => d.avgMargin.toFixed(2)), backgroundColor: professionalColors }] }, options: commonBarOptions }));
+            const handleCreateInsumo = () => {
+                const newInsumo = searchTerm.trim();
+                if (newInsumo && !rawIngredients.find(i => i.toLowerCase() === newInsumo.toLowerCase())) {
+                    const updatedIngredients = [...rawIngredients, newInsumo];
+                    setRawIngredients(updatedIngredients);
+                    setSearchTerm('');
                 }
-                if (priceChartRef.current && chartData?.sellingPriceByCategory?.length > 0) {
-                    chartInstances.push(new Chart(priceChartRef.current.getContext('2d'), { type: 'bar', data: { labels: chartData.sellingPriceByCategory.map(d => d.category), datasets: [{ label: 'Precio de Venta Promedio ($)', data: chartData.sellingPriceByCategory.map(d => d.avgPrice.toFixed(2)), backgroundColor: professionalColors.slice().reverse() }] }, options: commonBarOptions }));
-                }
-                if (ingredientsChartRef.current && chartData?.topIngredients?.length > 0) {
-                     chartInstances.push(new Chart(ingredientsChartRef.current.getContext('2d'), { type: 'bar', data: { labels: chartData.topIngredients.map(d => d[0]), datasets: [{ label: 'Usos en recetas', data: chartData.topIngredients.map(d => d[1]), backgroundColor: professionalColors }] }, options: { ...commonBarOptions, indexAxis: 'y' } }));
-                }
-                if (chartData?.marginsByCategoryAndDish) {
-                    Object.entries(chartData.marginsByCategoryAndDish).forEach(([category, dishes]) => {
-                        const canvas = categoryChartRefs.current[category];
-                        if (canvas) {
-                            chartInstances.push(new Chart(canvas.getContext('2d'), { 
-                                type: 'pie', 
-                                data: { labels: dishes.map(d => d.name), datasets: [{ label: 'Margen de Ganancia (%)', data: dishes.map(d => d.margin.toFixed(2)), backgroundColor: professionalColors }] }, 
-                                options: { 
-                                    maintainAspectRatio: false, 
-                                    responsive: true, 
-                                    plugins: { legend: { position: 'right', labels: { boxWidth: 12, font: { size: 12 } } } } 
-                                } 
-                            }));
-                        }
-                    });
-                }
-                return () => chartInstances.forEach(chart => chart.destroy());
-            }, [chartData]);
-            
-            if (!chartData) {
-                 return <div className="text-center py-12"><h2 className="text-2xl font-semibold text-slate-700">No hay datos para mostrar en el dashboard.</h2><p className="mt-2 text-slate-500">Crea productos, asígnales recetas, categorías y precios de venta para ver los análisis.</p></div>;
-            }
+            };
+
             return (
                 <div className="space-y-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        <ChartCard title="Rentabilidad por Categoría (Margen %)"><canvas ref={marginChartRef}></canvas></ChartCard>
-                        <ChartCard title="Precio de Venta Promedio por Categoría"><canvas ref={priceChartRef}></canvas></ChartCard>
-                        <ChartCard title="Top 10 Insumos/Recetas más Usados"><canvas ref={ingredientsChartRef}></canvas></ChartCard>
+                    <div className="bg-white p-6 rounded-lg shadow-md">
+                        <h2 className="text-xl font-semibold mb-4">Costos de Insumos</h2>
+                        <p className="text-slate-600 mb-4">Aquí puedes definir el precio de compra de cada insumo. Este costo se usará para calcular automáticamente el precio de tus recetas.</p>
+                        <input
+                            type="text"
+                            placeholder="Buscar o crear un insumo..."
+                            value={searchTerm}
+                            onChange={e => setSearchTerm(e.target.value)}
+                            className="w-full rounded-md border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                        />
                     </div>
-                    {Object.keys(chartData.marginsByCategoryAndDish).length > 0 && (
-                        <div className="bg-white p-4 sm:p-6 rounded-lg border border-slate-200 shadow-sm">
-                            <h3 className="text-xl font-semibold text-slate-800 mb-4">Análisis de Margen por Plato</h3>
-                            <div className="space-y-8">
-                                {Object.entries(chartData.marginsByCategoryAndDish).map(([category, dishes]) => (
-                                    <div key={category}>
-                                        <h4 className="text-lg font-medium text-slate-700 mb-3 border-b pb-2">{category}</h4>
-                                        <div className="h-80"><canvas ref={el => categoryChartRefs.current[category] = el}></canvas></div>
-                                    </div>
-                                ))}
-                            </div>
+                    <div className="bg-white rounded-lg shadow-md overflow-hidden">
+                        <div className="overflow-y-auto max-h-[65vh] custom-scrollbar">
+                           <table className="min-w-full divide-y divide-slate-200">
+                                <thead className="bg-slate-50 sticky top-0">
+                                    <tr>
+                                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Nombre del Insumo</th>
+                                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Costo de Compra (ARS)</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="bg-white divide-y divide-slate-200">
+                                    {filteredInsumos.map(insumoName => (
+                                        <tr key={insumoName}>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-900">{insumoName}</td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500">
+                                                <input 
+                                                    type="number" 
+                                                    value={insumoCosts[insumoName] || ''}
+                                                    onChange={e => handleCostChange(insumoName, e.target.value)}
+                                                    className="w-32 rounded-md border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                                    placeholder="0.00"
+                                                    step="0.01"
+                                                />
+                                            </td>
+                                        </tr>
+                                    ))}
+                                    {filteredInsumos.length === 0 && searchTerm.trim() !== '' && (
+                                        <tr>
+                                            <td colSpan="2" className="px-6 py-4 text-center text-sm text-slate-500">
+                                                No se encontró "{searchTerm}".
+                                                <button 
+                                                    onClick={handleCreateInsumo}
+                                                    className="ml-4 inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                                                >
+                                                    <PlusIcon className="h-3 w-3 mr-1.5"/>
+                                                    Crear Insumo
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    )}
+                                </tbody>
+                            </table>
                         </div>
-                    )}
+                    </div>
                 </div>
             );
         };
         
-        const ProductListPage = ({ products, setProducts, recipes, setRecipes, navigateTo }) => {
+        const RecetasPage = ({ recetas, onSelectReceta, onCreateReceta, onMorphiImport, ingredientCostMap }) => {
             const [searchTerm, setSearchTerm] = useState('');
-            const [newProductName, setNewProductName] = useState('');
-            const [newProductPrice, setNewProductPrice] = useState('');
+            const [selectedCategory, setSelectedCategory] = useState('all');
 
-            const handleAddProduct = () => {
-                if (!newProductName.trim()) {
-                    alert('Por favor, ingresa el nombre del producto.');
-                    return;
-                }
-                const newProduct = {
-                    id: `prod_${Date.now()}_${Math.random()}`,
-                    name: newProductName.trim(),
-                    sellingPrice: parseFloat(newProductPrice) || 0,
-                    hasRecipe: false,
-                };
-                setProducts(prevProducts => [...prevProducts, newProduct]);
-                setNewProductName('');
-                setNewProductPrice('');
-            };
-
-            const handlePriceChange = (id, newPrice) => {
-                setProducts(products.map(p => p.id === id ? { ...p, sellingPrice: parseFloat(newPrice) || 0 } : p));
-            };
-
-            const createRecipe = (product) => {
-                const recipeExists = recipes.some(r => r.productId === product.id);
-                if (!recipeExists) {
-                    const newRecipe = { productId: product.id, ingredients: [], category: '' };
-                    setRecipes(prevRecipes => [...prevRecipes, newRecipe]);
-                }
-                setProducts(prevProducts => prevProducts.map(p => p.id === product.id ? { ...p, hasRecipe: true } : p));
-                navigateTo('recipeDetail', { recipeId: product.id });
-            };
-
-            const filteredProducts = products.filter(p => p && p.name && p.name.toLowerCase().includes(searchTerm.toLowerCase()));
-
-            return (
-                <div>
-                    <h1 className="text-2xl font-bold mb-4">Lista de Productos (La Carta)</h1>
-                     <div className="bg-white p-4 rounded-lg border border-slate-200 shadow-sm mb-6">
-                        <h2 className="text-lg font-semibold text-slate-700 mb-3">Agregar Nuevo Producto a la Carta</h2>
-                        <div className="flex flex-col sm:flex-row gap-4">
-                            <input type="text" placeholder="Nombre del producto (ej: Pizza Margarita)" className="flex-grow p-2 border border-slate-300 rounded-md" value={newProductName} onChange={e => setNewProductName(e.target.value)} />
-                            <input type="number" placeholder="Precio de venta" className="w-full sm:w-40 p-2 border border-slate-300 rounded-md" value={newProductPrice} onChange={e => setNewProductPrice(e.target.value)} />
-                            <button onClick={handleAddProduct} className="bg-blue-600 text-white font-medium py-2 px-4 rounded-md hover:bg-blue-700 transition">Agregar Producto</button>
-                        </div>
-                    </div>
-
-                    <input type="text" placeholder="Buscar producto en la carta..." className="w-full p-2 border border-slate-300 rounded-md mb-4" value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
-                    <div className="bg-white border border-slate-200 rounded-lg shadow-sm overflow-hidden">
-                        <table className="w-full text-sm text-left text-slate-500">
-                            <thead className="text-xs text-slate-700 uppercase bg-slate-50">
-                                <tr>
-                                    <th scope="col" className="px-6 py-3">Producto</th>
-                                    <th scope="col" className="px-6 py-3">Precio de Venta</th>
-                                    <th scope="col" className="px-6 py-3">Acción</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {filteredProducts.map(product => (
-                                    <tr key={product.id} className="bg-white border-b hover:bg-slate-50">
-                                        <th scope="row" className="px-6 py-4 font-medium text-slate-900 whitespace-nowrap">{product.name}</th>
-                                        <td className="px-6 py-4"><input type="number" value={product.sellingPrice} onChange={e => handlePriceChange(product.id, e.target.value)} className="w-24 p-1 border rounded" /></td>
-                                        <td className="px-6 py-4">
-                                            {product.hasRecipe ? <button onClick={() => navigateTo('recipeDetail', { recipeId: product.id })} className="font-medium text-indigo-600 hover:underline">Ver/Editar Receta</button> : <button onClick={() => createRecipe(product)} className="font-medium text-emerald-600 hover:underline">Crear Receta</button>}
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                         {filteredProducts.length === 0 && (
-                            <div className="text-center py-8 text-slate-500">
-                                <p>No se encontraron productos. ¡Agrega el primer plato de tu carta!</p>
-                            </div>
-                        )}
-                    </div>
-                </div>
+            const filteredRecetas = useMemo(() => {
+                return recetas
+                    .filter(receta => {
+                        const searchTermMatch = receta.name.toLowerCase().includes(searchTerm.toLowerCase());
+                        const categoryMatch = selectedCategory === 'all' || receta.category === selectedCategory;
+                        return searchTermMatch && categoryMatch;
+                    })
+                    .sort((a, b) => a.name.localeCompare(b.name));
+            }, [recetas, searchTerm, selectedCategory]);
+            
+            const totalRecetas = recetas.length;
+            const sinAnalizarCount = useMemo(() => 
+                recetas.filter(r => r.category === 'Sin Analizar').length, 
+                [recetas]
             );
-        };
-
-        const SavedRecipesPage = ({ products, recipes, setRecipes, navigateTo, setProducts }) => {
-            const [modalInfo, setModalInfo] = useState({ isOpen: false, recipeId: null });
-            const handleCategoryChange = (recipeId, category) => setRecipes(recipes.map(r => r.productId === recipeId ? { ...r, category } : r));
-            const handleDeleteClick = (recipeId) => setModalInfo({ isOpen: true, recipeId });
-            const confirmDelete = () => {
-                const recipeId = modalInfo.recipeId;
-                setRecipes(recipes.filter(r => r.productId !== recipeId));
-                setProducts(products.map(p => p.id === recipeId ? { ...p, hasRecipe: false } : p));
-                setModalInfo({ isOpen: false, recipeId: null });
-            };
-
-            const recipeDetails = recipes.map(recipe => {
-                const product = products.find(p => p.id === recipe.productId);
-                const cost = calculateRecipeNetCost(recipe.ingredients);
-                const margin = product && product.sellingPrice > 0 ? ((product.sellingPrice - cost * (1 + VAT_RATE)) / product.sellingPrice) * 100 : 0;
-                return { ...recipe, product, cost, margin };
-            });
 
             return (
-                <div>
-                    <h1 className="text-2xl font-bold mb-4">Recetas Guardadas</h1>
-                    {recipeDetails.length > 0 ? (
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            {recipeDetails.map(({ product, cost, margin, category, productId }) => product && (
-                                <div key={productId} className="bg-white p-5 rounded-lg border border-slate-200 shadow-sm flex flex-col justify-between">
-                                <div>
-                                        <h3 className="text-lg font-semibold text-slate-800">{product.name}</h3>
-                                        <div className="text-sm text-slate-500 mt-2 space-y-1">
-                                            <p>Costo: ${cost.toFixed(2)}</p>
-                                            <p>Precio Venta: ${product.sellingPrice.toFixed(2)}</p>
-                                            <p>Margen: <span className={margin > 0 ? "text-green-600" : "text-red-600"}>{margin.toFixed(2)}%</span></p>
-                                        </div>
-                                        <select value={category || ''} onChange={(e) => handleCategoryChange(productId, e.target.value)} className="mt-4 w-full p-2 border border-slate-300 rounded-md text-sm">
-                                            <option value="">Sin Categoría</option>
-                                            {RECIPE_CATEGORIES.map(cat => <option key={cat} value={cat}>{cat}</option>)}
-                                        </select>
-                                    </div>
-                                    <div className="mt-4 flex justify-between items-center">
-                                        <button onClick={() => navigateTo('recipeDetail', { recipeId: productId })} className="text-sm font-medium text-indigo-600 hover:underline">Ver/Editar</button>
-                                        <button onClick={() => handleDeleteClick(productId)} className="text-sm font-medium text-red-600 hover:underline">Eliminar</button>
-                                    </div>
+                 <div className="space-y-6">
+                    <div className="flex justify-between items-center">
+                        <h1 className="text-2xl font-bold text-slate-800">Mis Recetas</h1>
+                        <button onClick={onCreateReceta} className="inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-white bg-indigo-600 border border-transparent rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                            <PlusIcon /> <span className="ml-2">Nueva Receta</span>
+                        </button>
+                    </div>
+
+                    {recetas.length > 0 && (
+                        <>
+                            <div className="bg-white p-4 rounded-lg shadow-md border-l-4 border-amber-400">
+                                <p className="text-sm text-slate-700">
+                                    Hay <span className="font-bold text-lg text-slate-900">{sinAnalizarCount}</span> recetas sin analizar de un total de <span className="font-bold text-lg text-slate-900">{totalRecetas}</span>.
+                                </p>
+                            </div>
+                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pb-2">
+                                <input
+                                    type="text"
+                                    placeholder="Buscar por nombre de receta..."
+                                    value={searchTerm}
+                                    onChange={e => setSearchTerm(e.target.value)}
+                                    className="sm:col-span-2 w-full rounded-md border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                />
+                                <select
+                                    value={selectedCategory}
+                                    onChange={e => setSelectedCategory(e.target.value)}
+                                    className="w-full rounded-md border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                >
+                                    <option value="all">Todas las categorías</option>
+                                    {RECIPE_CATEGORIES.sort().map(cat => <option key={cat} value={cat}>{cat}</option>)}
+                                </select>
+                            </div>
+                        </>
+                    )}
+
+                    {recetas.length === 0 ? (
+                        <div className="text-center py-12 bg-white rounded-lg shadow-md">
+                            <BookOpenIcon className="mx-auto h-12 w-12 text-slate-400"/>
+                            <h3 className="mt-2 text-lg font-medium text-slate-900">No hay recetas todavía</h3>
+                            <p className="mt-1 text-sm text-slate-500">Empieza creando tu primera receta manually o importando una lista.</p>
+                            <div className="mt-6 flex flex-col items-center space-y-4">
+                                <button onClick={onCreateReceta} type="button" className="inline-flex items-center justify-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 w-60">
+                                    <PlusIcon className="-ml-1 mr-2 h-5 w-5" />
+                                    Crear Nueva Receta
+                                </button>
+                                <div className="text-center">
+                                    <button onClick={onMorphiImport} type="button" className="inline-flex items-center justify-center px-4 py-2 border border-slate-300 shadow-sm text-sm font-medium rounded-md text-slate-700 bg-white hover:bg-slate-50 w-60">
+                                        <UploadIcon />
+                                        Lista de Morphi
+                                    </button>
+                                    <p className="mt-2 text-xs text-slate-500 max-w-xs mx-auto">
+                                        Descarga la lista de precios de Morphi y crea desde ese archivos las recetas.
+                                    </p>
                                 </div>
-                            ))}
+                            </div>
+                        </div>
+                    ) : filteredRecetas.length === 0 ? (
+                        <div className="text-center py-12 bg-white rounded-lg shadow-md">
+                             <h3 className="mt-2 text-lg font-medium text-slate-900">No se encontraron recetas</h3>
+                             <p className="mt-1 text-sm text-slate-500">Prueba ajustando tu búsqueda o filtros.</p>
                         </div>
                     ) : (
-                        <div className="text-center py-12 text-slate-500">
-                            <p className="text-lg">No hay recetas guardadas todavía.</p>
-                            <p>Ve a la sección de "Productos" para crear una receta para un plato de tu carta.</p>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                            {filteredRecetas.map(receta => {
+                                const cost = calculateRecetaNetCost(receta.ingredients, ingredientCostMap);
+                                const costWithVAT = cost * (1 + VAT_RATE);
+                                const servings = receta.servings > 0 ? receta.servings : 1;
+                                const costPerServingWithVAT = costWithVAT / servings;
+                                const profit = receta.salePrice - costPerServingWithVAT;
+                                const margin = receta.salePrice > 0 ? (profit / receta.salePrice) * 100 : 0;
+                                const bgColorClass = getCategoryColorClass(receta.category);
+                                
+                                return (
+                                    <div key={receta.id} onClick={() => onSelectReceta(receta)} className={`${bgColorClass} rounded-lg shadow-md hover:shadow-xl transition-shadow duration-200 cursor-pointer flex flex-col justify-between min-h-[280px]`}>
+                                        <div className="p-6 flex-grow">
+                                            <h3 className="font-bold text-lg text-slate-800">{receta.name}</h3>
+                                            <p className="text-sm text-slate-500 mt-1">{receta.category}</p>
+                                        </div>
+                                        <div className="bg-slate-50/50 p-5 rounded-b-lg border-t border-slate-200 space-y-3">
+                                            <div className="flex justify-between items-center text-sm">
+                                                <span className="text-slate-500">Costo/Porción</span>
+                                                <span className="font-semibold text-slate-700">{formatCurrency(costPerServingWithVAT)}</span>
+                                            </div>
+                                            <div className="flex justify-between items-center text-sm">
+                                                <span className="text-slate-500">PVP</span>
+                                                <span className="font-semibold text-slate-700">{formatCurrency(receta.salePrice)}</span>
+                                            </div>
+                                            <hr className="border-slate-200" />
+                                            <div className="flex justify-between items-center">
+                                                <span className="text-base font-semibold text-slate-600">Margen</span>
+                                                <span className={`font-bold text-xl ${margin < 30 ? 'text-red-600' : 'text-green-600'}`}>
+                                                    {margin.toFixed(1)}%
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                );
+                            })}
                         </div>
                     )}
-                    <ConfirmModal isOpen={modalInfo.isOpen} onClose={() => setModalInfo({isOpen: false, recipeId: null})} onConfirm={confirmDelete} title="Eliminar Receta" message="¿Estás seguro de que quieres eliminar esta receta? Esta acción no se puede deshacer." />
-                </div>
+                 </div>
             );
         };
+        
+        const RecetaDetailPage = ({ initialReceta, setRecetas, onBack, ingredientCostMap, availableIngredients }) => {
+            const [receta, setReceta] = useState(initialReceta);
 
-        const RecipeDetailPage = ({ recipeId, products, recipes, setRecipes, setProducts, navigateTo }) => {
-            const product = products.find(p => p.id === recipeId);
-            const [ingredients, setIngredients] = useState([]);
-            const [category, setCategory] = useState('');
-            const [searchTerm, setSearchTerm] = useState('');
-            const [isSearchVisible, setIsSearchVisible] = useState(false);
+            const handleRecetaChange = (field, value) => {
+                setReceta(prev => ({...prev, [field]: value }));
+            };
 
-            useEffect(() => {
-                const recipeData = recipes.find(r => r.productId === recipeId);
-                setIngredients(recipeData?.ingredients || []);
-                setCategory(recipeData?.category || '');
-            }, [recipeId, recipes]);
-
-            const availableIngredients = useMemo(() => {
-                // Sub-recipes are products categorized as 'Guarnición' or 'Salsas'
-                const subRecipes = products
-                    .filter(p => {
-                        const recipe = recipes.find(r => r.productId === p.id);
-                        return recipe && (recipe.category === 'Guarnición' || recipe.category === 'Salsas');
-                    })
-                    .map(p => {
-                        const recipe = recipes.find(r => r.productId === p.id);
-                        const cost = calculateRecipeNetCost(recipe.ingredients);
-                        return {
-                            id: p.id,
-                            name: p.name,
-                            isSubRecipe: true,
-                            cost: cost 
-                        };
-                    });
-
-                const rawIngredients = RAW_INGREDIENTS_LIST.map(name => ({
-                    id: name,
-                    name: name,
-                    isSubRecipe: false,
-                    cost: null
+            const handleIngredientChange = (ingId, field, value) => {
+                setReceta(prev => ({
+                    ...prev,
+                    ingredients: prev.ingredients.map(ing => 
+                        ing.id === ingId ? { ...ing, [field]: value } : ing
+                    )
                 }));
-                
-                return [...rawIngredients, ...subRecipes];
-            }, [products, recipes]);
+            };
+
+            const addIngredient = () => {
+                const newIngredient = { id: `ing_${Date.now()}`, name: '', quantity: '', unit: 'g', wastePercentage: 0 };
+                setReceta(prev => ({ ...prev, ingredients: [...(prev.ingredients || []), newIngredient] }));
+            };
             
-            const handleAddIngredient = (item) => {
-                let newIngredient;
-                if (item.isSubRecipe) {
-                    newIngredient = {
-                        id: `ing_${Date.now()}_${Math.random()}`,
-                        name: item.name,
-                        quantity: 1, // Default to 1 portion
-                        unit: 'porción',
-                        unitPrice: item.cost, // Use pre-calculated cost
-                        wastePercentage: 0,
-                        isSubRecipe: true,
-                        sourceProductId: item.id,
-                    };
-                } else {
-                    newIngredient = {
-                        id: `ing_${Date.now()}_${Math.random()}`,
-                        name: item.name,
-                        quantity: '',
-                        unit: 'unidad',
-                        unitPrice: '',
-                        wastePercentage: 0,
-                        isSubRecipe: false,
-                    };
+            const removeIngredient = (ingId) => {
+                setReceta(prev => ({...prev, ingredients: prev.ingredients.filter(ing => ing.id !== ingId) }));
+            };
+
+            const handleSave = () => {
+                setRecetas(prev => prev.map(r => r.id === receta.id ? receta : r));
+                onBack();
+            };
+
+            const handleDelete = () => {
+                if (window.confirm(`¿Estás seguro de que quieres eliminar la receta "${receta.name}"?`)) {
+                    setRecetas(prev => prev.filter(r => r.id !== receta.id));
+                    onBack();
                 }
-                setIngredients(prev => [...prev, newIngredient]);
-                setSearchTerm('');
-                setIsSearchVisible(false);
             };
             
-            const handleIngredientChange = (id, field, value) => {
-                const numValue = parseFloat(value);
-                setIngredients(prev => prev.map(ing => ing.id === id ? { ...ing, [field]: field === 'name' || field === 'unit' ? value : isNaN(numValue) ? '' : numValue } : ing));
-            };
-
-            const handleRemoveIngredient = id => setIngredients(prev => prev.filter(ing => ing.id !== id));
-            
-            const saveRecipe = () => {
-                const updatedRecipe = { productId: recipeId, ingredients, category };
-                setRecipes(prev => {
-                    const recipeIndex = prev.findIndex(r => r.productId === recipeId);
-                    if (recipeIndex > -1) {
-                        const newRecipes = [...prev];
-                        newRecipes[recipeIndex] = updatedRecipe;
-                        return newRecipes;
-                    }
-                    return [...prev, updatedRecipe];
-                });
-                alert('Receta guardada con éxito!');
-            };
-
-            const cost = calculateRecipeNetCost(ingredients);
+            const cost = calculateRecetaNetCost(receta.ingredients, ingredientCostMap);
             const costWithVAT = cost * (1 + VAT_RATE);
-            const profitMargin = product && product.sellingPrice > 0 ? ((product.sellingPrice - costWithVAT) / product.sellingPrice) * 100 : 0;
+            const costPerServing = (receta.servings || 1) > 0 ? costWithVAT / receta.servings : 0;
+            const profit = receta.salePrice - costPerServing;
+            const margin = receta.salePrice > 0 ? (profit / receta.salePrice) * 100 : 0;
             
-            const filteredIngredients = useMemo(() => {
-                const currentIngredientNames = new Set((ingredients || []).map(ing => ing?.name?.toLowerCase()));
-                const trimmedSearch = searchTerm.trim().toLowerCase();
-
-                const results = availableIngredients.filter(item => {
-                    const lowerItemName = item.name.toLowerCase();
-                    if (currentIngredientNames.has(lowerItemName)) return false;
-                    // Prevent a recipe from being added to itself
-                    if (item.isSubRecipe && item.id === recipeId) return false;
-                    
-                    return trimmedSearch ? lowerItemName.includes(trimmedSearch) : true;
-                });
-                return results.slice(0, 10);
-            }, [searchTerm, ingredients, availableIngredients, recipeId]);
-
-
-            if (!product) return <div className="text-center py-12">Cargando receta... o producto no encontrado.</div>;
-
             return (
-                <div>
-                    <div className="flex justify-between items-center mb-6">
-                        <h1 className="text-3xl font-bold text-slate-800">Receta: {product.name}</h1>
-                        <button onClick={saveRecipe} className="bg-blue-600 text-white font-semibold py-2 px-6 rounded-md hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">Guardar Cambios</button>
+                <div className="space-y-8">
+                    <div>
+                         <button onClick={onBack} className="inline-flex items-center text-sm font-medium text-slate-600 hover:text-slate-900 mb-4">
+                            <ChevronLeftIcon /> Volver a Mis Recetas
+                        </button>
                     </div>
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                         <div className="lg:col-span-2 space-y-6">
-                            <div className="bg-white p-5 rounded-lg border shadow-sm">
-                                <h3 className="text-lg font-semibold text-slate-700 mb-3">Agregar Ingrediente a la Receta</h3>
-                                <div className="relative">
-                                    <input 
-                                        type="text" 
-                                        value={searchTerm} 
-                                        onChange={e => setSearchTerm(e.target.value)}
-                                        onFocus={() => setIsSearchVisible(true)}
-                                        onBlur={() => setTimeout(() => setIsSearchVisible(false), 200)}
-                                        placeholder="Buscar insumo (ej: Ajo) o receta (ej: Puré...)" 
-                                        className="w-full p-2 border border-slate-300 rounded-md" 
-                                    />
-                                    {isSearchVisible && (
-                                        <div className="absolute z-40 w-full bg-white border rounded-md mt-1 shadow-lg max-h-60 overflow-y-auto">
-                                            {filteredIngredients.map(item => (
-                                                <div key={item.id} className="flex justify-between items-center p-3 hover:bg-slate-50 cursor-pointer" onMouseDown={() => handleAddIngredient(item)}>
-                                                    <div>
-                                                        <span>{item.name}</span>
-                                                        {item.isSubRecipe && <span className="text-xs bg-indigo-100 text-indigo-700 font-medium px-2 py-0.5 rounded-full ml-2">Receta</span>}
-                                                    </div>
-                                                    <button className="bg-blue-100 text-blue-600 rounded-full w-7 h-7 flex items-center justify-center hover:bg-blue-200 font-bold transition-transform transform hover:scale-110"><PlusIcon /></button>
-                                                </div>
-                                            ))}
-                                            {filteredIngredients.length === 0 && searchTerm.trim() && (
-                                                <div className="p-3 text-sm text-slate-500">No se encontraron ingredientes.</div>
-                                            )}
-                                        </div>
-                                    )}
+                            <div className="bg-white p-6 rounded-lg shadow-md">
+                                <h2 className="text-xl font-semibold mb-4">Detalles de la Receta</h2>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <input type="text" placeholder="Nombre de la Receta" value={receta.name} onChange={e => handleRecetaChange('name', e.target.value)} className="md:col-span-2 text-lg font-semibold border-0 border-b-2 border-slate-200 focus:ring-0 focus:border-indigo-500 p-2"/>
+                                    <select value={receta.category} onChange={e => handleRecetaChange('category', e.target.value)} className="rounded-md border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                                        {RECIPE_CATEGORIES.map(cat => <option key={cat} value={cat}>{cat}</option>)}
+                                    </select>
+                                    <input type="number" placeholder="Precio de Venta" value={receta.salePrice} onChange={e => handleRecetaChange('salePrice', parseFloat(e.target.value))} className="rounded-md border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" />
+                                    <input type="number" placeholder="Rendimiento (porciones)" value={receta.servings} onChange={e => handleRecetaChange('servings', parseInt(e.target.value))} className="rounded-md border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" />
+                                    <textarea placeholder="Notas de preparación..." value={receta.notes} onChange={e => handleRecetaChange('notes', e.target.value)} className="md:col-span-2 rounded-md border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" rows="3"></textarea>
                                 </div>
                             </div>
-                            <div className="bg-white p-5 rounded-lg border shadow-sm">
-                                <h3 className="text-lg font-semibold text-slate-700 mb-4">Ingredientes de la Receta</h3>
-                                <div className="space-y-4">
-                                    {ingredients.length > 0 ? ingredients.map(ing => {
-                                        const isSub = !!ing.isSubRecipe;
-                                        return (
-                                        <div key={ing.id} className={`border p-3 rounded-lg space-y-3 ${isSub ? 'bg-indigo-50 border-indigo-200' : 'bg-slate-50 border-slate-200'}`}>
-                                            <div className="flex justify-between items-center">
-                                                <p className="font-semibold text-slate-800">{ing.name} {isSub && <span className="text-xs bg-indigo-100 text-indigo-700 font-medium px-2 py-0.5 rounded-full ml-1">Receta</span>}</p>
-                                                <button onClick={() => handleRemoveIngredient(ing.id)} className="text-slate-400 hover:text-red-600 p-1 rounded-full hover:bg-red-100 transition-colors"><TrashIcon /></button>
-                                            </div>
-                                            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
-                                                <div>
-                                                    <label className="block text-xs font-medium text-slate-500 mb-1">Cant.</label>
-                                                    <input type="number" placeholder="Ej: 100" value={ing.quantity} onChange={e => handleIngredientChange(ing.id, 'quantity', e.target.value)} className="w-full p-1.5 border border-slate-300 rounded-md" />
-                                                </div>
-                                                <div>
-                                                    <label className="block text-xs font-medium text-slate-500 mb-1">Unidad</label>
-                                                    <select value={ing.unit} onChange={e => handleIngredientChange(ing.id, 'unit', e.target.value)} className="w-full p-1.5 border border-slate-300 rounded-md bg-white disabled:bg-slate-100" disabled={isSub}>
-                                                        {isSub ? <option value="porción">porción</option> : UNITS_OF_MEASURE.map(u => <option key={u} value={u}>{u}</option>)}
-                                                    </select>
-                                                </div>
-                                                <div>
-                                                    <label className="block text-xs font-medium text-slate-500 mb-1">{isSub ? 'Costo Receta' : 'Precio Compra'}</label>
-                                                    <input type="number" placeholder="Ej: 15.50" value={ing.unitPrice} onChange={e => handleIngredientChange(ing.id, 'unitPrice', e.target.value)} className="w-full p-1.5 border border-slate-300 rounded-md disabled:bg-slate-100" disabled={isSub} />
-                                                </div>
-                                                <div>
-                                                    <label className="block text-xs font-medium text-slate-500 mb-1">Merma %</label>
-                                                    <input type="number" placeholder="Ej: 10" value={ing.wastePercentage} onChange={e => handleIngredientChange(ing.id, 'wastePercentage', e.target.value)} className="w-full p-1.5 border border-slate-300 rounded-md disabled:bg-slate-100" disabled={isSub}/>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    )}) : (
-                                        <div className="text-center py-6 text-slate-500">
-                                            <p>Aún no hay ingredientes en esta receta.</p>
-                                            <p className="text-xs">Usa el buscador de arriba para agregarlos.</p>
-                                        </div>
-                                    )}
+                            <div className="bg-white p-6 rounded-lg shadow-md">
+                                <div className="flex justify-between items-center mb-4">
+                                    <h2 className="text-xl font-semibold">Ingredientes</h2>
+                                    <button onClick={addIngredient} className="text-sm font-medium text-indigo-600 hover:text-indigo-800">+ Añadir ingrediente</button>
+                                </div>
+                                <div className="overflow-x-auto">
+                                    <table className="min-w-full">
+                                        <thead>
+                                            <tr className="border-b border-slate-200">
+                                                <th className="text-left py-2 pr-2 text-sm font-semibold text-slate-600">Insumo / Sub-receta</th>
+                                                <th className="text-left py-2 px-2 text-sm font-semibold text-slate-600">Cantidad</th>
+                                                <th className="text-left py-2 px-2 text-sm font-semibold text-slate-600">Unidad</th>
+                                                <th className="text-left py-2 px-2 text-sm font-semibold text-slate-600">Merma %</th>
+                                                <th className="text-right py-2 px-2 text-sm font-semibold text-slate-600">Costo</th>
+                                                <th className="text-center py-2 pl-2 text-sm font-semibold text-slate-600">Acción</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {(receta.ingredients || []).map(ing => {
+                                                const costData = ingredientCostMap.get(ing.name);
+                                                const unitPrice = costData ? costData.cost : 0;
+                                                const quantity = parseFloat(ing.quantity) || 0;
+                                                const waste = 1 - (parseFloat(ing.wastePercentage) || 0) / 100;
+                                                const lineCost = waste > 0 ? (quantity * unitPrice / waste) : 0;
+
+                                                return (
+                                                    <tr key={ing.id} className="align-middle">
+                                                        <td className="pr-2 py-1">
+                                                            <input list="ingredient-names" type="text" value={ing.name} onChange={e => handleIngredientChange(ing.id, 'name', e.target.value)} className="w-full rounded-md border-slate-300 shadow-sm sm:text-sm" />
+                                                        </td>
+                                                        <td className="px-2 py-1"><input type="number" value={ing.quantity} onChange={e => handleIngredientChange(ing.id, 'quantity', e.target.value)} className="w-20 rounded-md border-slate-300 shadow-sm sm:text-sm"/></td>
+                                                        <td className="px-2 py-1">
+                                                            <select value={ing.unit} onChange={e => handleIngredientChange(ing.id, 'unit', e.target.value)} className="w-24 rounded-md border-slate-300 shadow-sm sm:text-sm">
+                                                                {UNITS_OF_MEASURE.map(u => <option key={u} value={u}>{u}</option>)}
+                                                            </select>
+                                                        </td>
+                                                         <td className="px-2 py-1"><input type="number" value={ing.wastePercentage} onChange={e => handleIngredientChange(ing.id, 'wastePercentage', e.target.value)} className="w-20 rounded-md border-slate-300 shadow-sm sm:text-sm" /></td>
+                                                        <td className="px-2 py-1 text-right font-medium text-slate-700 whitespace-nowrap">
+                                                            {formatCurrency(lineCost)}
+                                                        </td>
+                                                        <td className="pl-2 py-1 text-center"><button onClick={() => removeIngredient(ing.id)} className="text-red-500 hover:text-red-700 p-1"><TrashIcon /></button></td>
+                                                    </tr>
+                                                );
+                                            })}
+                                            <datalist id="ingredient-names">
+                                                {availableIngredients.map(name => <option key={name} value={name} />)}
+                                            </datalist>
+                                        </tbody>
+                                    </table>
                                 </div>
                             </div>
                         </div>
-                        <div className="lg:sticky lg:top-24 h-fit">
-                            <div className="bg-white p-5 rounded-lg border shadow-sm space-y-4">
-                                <h3 className="text-xl font-bold text-slate-800 mb-2">Análisis Financiero</h3>
-                                <div className="space-y-2 text-sm text-slate-600">
-                                    <div className="flex justify-between items-center"><p>Costo Neto:</p><p className="font-medium text-slate-800">${cost.toFixed(2)}</p></div>
-                                    <div className="flex justify-between items-center"><p>IVA ({VAT_RATE * 100}%):</p><p className="font-medium text-slate-800">${(cost * VAT_RATE).toFixed(2)}</p></div>
-                                    <hr/>
-                                    <div className="flex justify-between items-center text-base"><p className="font-semibold">Costo Total:</p><p className="font-bold text-slate-900">${costWithVAT.toFixed(2)}</p></div>
-                                </div>
-                                <hr/>
-                                <div className="space-y-2">
-                                    <label className="block text-sm font-medium text-slate-700">Precio de Venta</label>
-                                    <input type="number" value={product.sellingPrice} onChange={e => setProducts(products.map(p => p.id === recipeId ? { ...p, sellingPrice: parseFloat(e.target.value) || 0 } : p))} className="w-full p-2 border border-slate-300 rounded-md" />
-                                </div>
-                                <div className="space-y-2">
-                                    <label className="block text-sm font-medium text-slate-700">Categoría</label>
-                                    <select value={category || ''} onChange={(e) => setCategory(e.target.value)} className="w-full p-2 border border-slate-300 rounded-md text-sm">
-                                        <option value="">Sin Categoría</option>
-                                        {RECIPE_CATEGORIES.map(cat => <option key={cat} value={cat}>{cat}</option>)}
-                                    </select>
-                                </div>
-                                <div className={`p-3 rounded-md text-center ${profitMargin > 30 ? 'bg-green-100 text-green-800' : profitMargin > 0 ? 'bg-amber-100 text-amber-800' : 'bg-red-100 text-red-800'}`}>
-                                    <p className="text-sm font-medium">Margen de Ganancia</p>
-                                    <p className="text-2xl font-bold">{profitMargin.toFixed(2)}%</p>
-                                </div>
-                                <button onClick={() => navigateTo('savedRecipes')} className="w-full bg-white text-slate-700 font-semibold py-2.5 rounded-md border border-slate-300 hover:bg-slate-50 transition-colors">Volver a Recetas</button>
-
+                        <div className="lg:col-span-1 space-y-6">
+                            <div className="bg-white p-6 rounded-lg shadow-md space-y-4">
+                                <h3 className="text-lg font-semibold border-b pb-2">Análisis de Costos</h3>
+                                <div className="flex justify-between text-sm"><span className="text-slate-600">Costo Neto Receta</span> <span className="font-medium">{formatCurrency(cost)}</span></div>
+                                <div className="flex justify-between text-sm"><span className="text-slate-600">Costo con IVA ({VAT_RATE * 100}%)</span> <span className="font-medium">{formatCurrency(costWithVAT)}</span></div>
+                                <div className="flex justify-between text-sm"><span className="text-slate-600">Costo por Porción</span> <span className="font-medium">{formatCurrency(costPerServing)}</span></div>
+                                <div className="flex justify-between text-sm"><span className="text-slate-600">Precio de Venta</span> <span className="font-medium">{formatCurrency(receta.salePrice)}</span></div>
+                                <div className="flex justify-between text-lg font-semibold pt-2 border-t"><span className="text-slate-800">Ganancia</span> <span>{formatCurrency(profit)}</span></div>
+                                <div className="flex justify-between text-lg font-semibold"><span className="text-slate-800">Margen</span> <span className={margin < 30 ? 'text-red-600' : 'text-green-600'}>{margin.toFixed(1)}%</span></div>
+                            </div>
+                            <div className="flex flex-col space-y-3">
+                                <button onClick={handleSave} className="w-full text-center px-4 py-2 text-base font-medium text-white bg-indigo-600 border border-transparent rounded-md shadow-sm hover:bg-indigo-700">Guardar Cambios</button>
+                                <button onClick={handleDelete} className="w-full text-center px-4 py-2 text-base font-medium text-red-700 bg-red-100 border border-transparent rounded-md hover:bg-red-200">Eliminar Receta</button>
                             </div>
                         </div>
                     </div>
@@ -653,100 +490,378 @@
             );
         };
         
-        // --- MAIN APP ---
+        const PriceListSelectionModal = ({ isOpen, onClose, headers, onSelect }) => {
+            if (!isOpen) return null;
+
+            return (
+                <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center p-4">
+                    <div className="bg-white rounded-lg shadow-xl w-full max-w-md max-h-full overflow-y-auto">
+                        <div className="p-6">
+                            <h3 className="text-lg font-semibold text-slate-900 mb-2">Seleccionar Lista de Precios</h3>
+                            <p className="text-sm text-slate-600 mb-4">Por favor, elige la columna de precios que deseas usar para establecer el Precio de Venta de las nuevas recetas.</p>
+                            <div className="space-y-2">
+                                {headers.map(header => (
+                                    <button
+                                        key={header}
+                                        onClick={() => onSelect(header)}
+                                        className="w-full text-left px-4 py-2 text-sm text-slate-700 bg-slate-100 rounded-md hover:bg-indigo-100 hover:text-indigo-800 transition-colors"
+                                    >
+                                        {header}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                        <div className="bg-slate-50 px-6 py-3 text-right">
+                             <button
+                                onClick={onClose}
+                                className="px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-md shadow-sm hover:bg-slate-50"
+                            >
+                                Cancelar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
         const App = () => {
-            // Products are the sellable items on the menu. Defaults to an empty list.
-            const [products, setProducts] = useLocalStorage('products', []);
-            // Recipes are linked to products.
-            const [recipes, setRecipes] = useLocalStorage('recipes', []);
+            const [insumoCosts, _setInsumoCosts] = useLocalStorage('insumoCosts', {});
+            const [recetas, _setRecetas] = useLocalStorage('recetas', []);
+            const [rawIngredients, setRawIngredients] = useLocalStorage('rawIngredients', RAW_INGREDIENTS_LIST);
+            const [currentView, setCurrentView] = useState('recetas'); // recetas, costos, recetaDetail
+            const [selectedReceta, setSelectedReceta] = useState(null);
+            const [hasUnexportedChanges, setHasUnexportedChanges] = useState(false);
             
-            const [currentPage, setCurrentPage] = useState({ page: 'dashboard', props: {} });
+            const [isPriceListModalOpen, setPriceListModalOpen] = useState(false);
+            const [priceListHeaders, setPriceListHeaders] = useState([]);
+            const [parsedMorphiData, setParsedMorphiData] = useState(null);
+
+            const setInsumoCosts = useCallback((value) => {
+                _setInsumoCosts(value);
+                setHasUnexportedChanges(true);
+            }, [_setInsumoCosts]);
+
+            const setRecetas = useCallback((value) => {
+                _setRecetas(value);
+                setHasUnexportedChanges(true);
+            }, [_setRecetas]);
             
             useEffect(() => {
-                // If there are no products, guide the user to the product list page first.
-                if (products.length === 0 && currentPage.page !== 'productList') {
-                   navigateTo('productList');
-                }
-            }, [products, currentPage.page]);
-            
-            const navigateTo = (page, props = {}) => {
-                setCurrentPage({ page, props })
-            };
-            
-            const handleExportExcel = () => {
-                try {
-                    const productsSheet = XLSX.utils.json_to_sheet(products);
-                    const recipesSheet = XLSX.utils.json_to_sheet(recipes.map(r => ({ ...r, ingredients: JSON.stringify(r.ingredients) })));
-                    const workbook = XLSX.utils.book_new();
-                    XLSX.utils.book_append_sheet(workbook, productsSheet, "Productos");
-                    XLSX.utils.book_append_sheet(workbook, recipesSheet, "Recetas");
-                    XLSX.writeFile(workbook, "datos_costos_recetas.xlsx");
-                } catch(e) {
-                    console.error("Error exporting to Excel:", e);
-                    alert("Hubo un error al exportar los datos.");
-                }
-            };
-
-            const handleImportExcel = (event) => {
-                const file = event.target.files?.[0];
-                if (!file) return;
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    try {
-                        const data = e.target.result;
-                        const workbook = XLSX.read(data, { type: 'binary' });
-                        const productsData = XLSX.utils.sheet_to_json(workbook.Sheets["Productos"]);
-                        const recipesData = XLSX.utils.sheet_to_json(workbook.Sheets["Recetas"]);
-                        
-                        // Basic validation
-                        if (Array.isArray(productsData)) setProducts(productsData);
-                        if (Array.isArray(recipesData)) {
-                             const parsedRecipes = recipesData.map(r => {
-                                try {
-                                    const ingredients = JSON.parse(r.ingredients);
-                                    return { ...r, ingredients: Array.isArray(ingredients) ? ingredients : [] };
-                                } catch (e) {
-                                    return { ...r, ingredients: [] };
-                                }
-                            });
-                            setRecipes(parsedRecipes);
-                        }
-                        alert("Datos importados con éxito!");
-                        navigateTo('dashboard');
-                    } catch (err) {
-                        console.error("Error al importar:", err);
-                        alert("Error al importar el archivo. Asegúrate de que tiene las hojas 'Productos' y 'Recetas' con el formato correcto.");
+                const handleBeforeUnload = (e) => {
+                    if (hasUnexportedChanges) {
+                        e.preventDefault();
+                        e.returnValue = 'Tienes cambios sin exportar. ¿Estás seguro de que quieres salir?';
                     }
                 };
-                reader.readAsBinaryString(file);
-                event.target.value = ''; // Reset file input
+                window.addEventListener('beforeunload', handleBeforeUnload);
+                return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+            }, [hasUnexportedChanges]);
+
+            const ingredientCostMap = useMemo(() => {
+                const costs = new Map();
+                Object.entries(insumoCosts).forEach(([name, cost]) => {
+                    costs.set(name, { cost: parseFloat(cost) || 0, unit: 'base' });
+                });
+
+                let unresolved = recetas.filter(p => ['Producción', 'Guarnición'].includes(p.category));
+                let iterations = 0;
+                const MAX_ITERATIONS = 10; 
+
+                while (unresolved.length > 0 && iterations < MAX_ITERATIONS) {
+                    let changed = false;
+                    unresolved = unresolved.filter(p => {
+                        if (costs.has(p.name)) return false; 
+                        
+                        const recipeIngredients = p.ingredients || [];
+                        let totalCost = 0;
+                        let isCalculable = true;
+
+                        for (const ing of recipeIngredients) {
+                            if (!costs.has(ing.name)) {
+                                isCalculable = false;
+                                break;
+                            }
+                            const ingCostData = costs.get(ing.name);
+                            const unitPrice = ingCostData.cost;
+                            const quantity = parseFloat(ing.quantity) || 0;
+                            const waste = 1 - (parseFloat(ing.wastePercentage) || 0) / 100;
+                            if (waste > 0) {
+                               totalCost += (quantity * unitPrice) / waste;
+                            }
+                        }
+
+                        if (isCalculable) {
+                            const servings = parseInt(p.servings) || 1;
+                            const costPerServing = servings > 0 ? totalCost / servings : 0;
+                            costs.set(p.name, { cost: costPerServing, unit: 'porción' });
+                            changed = true;
+                            return false; 
+                        }
+                        return true; 
+                    });
+
+                    if (!changed) break; 
+                    iterations++;
+                }
+                return costs;
+            }, [insumoCosts, recetas]);
+            
+            const availableIngredients = useMemo(() => {
+                const allIngredientNames = new Set(rawIngredients);
+                recetas
+                    .filter(p => ['Producción', 'Guarnición'].includes(p.category))
+                    .forEach(p => allIngredientNames.add(p.name));
+                return Array.from(allIngredientNames).sort();
+            }, [recetas, rawIngredients]);
+
+            const handleImport = () => {
+                const input = document.createElement('input');
+                input.type = 'file';
+                input.accept = '.xlsx, .xls';
+                input.onchange = e => {
+                    const file = e.target.files[0]; if (!file) return;
+                    const reader = new FileReader();
+                    reader.onload = event => {
+                        try {
+                            const data = new Uint8Array(event.target.result);
+                            const workbook = XLSX.read(data, { type: 'array' });
+                            let newCostsCount = 0, newRecetasCount = 0, newIngredientsCount = 0;
+                            let finalCosts = {...insumoCosts};
+                            let finalRecetas = [...recetas];
+                            const importedIngredients = new Set(rawIngredients);
+
+                            const costosSheet = workbook.Sheets['Costos Insumos'];
+                            if (costosSheet) {
+                                const costosData = XLSX.utils.sheet_to_json(costosSheet);
+                                costosData.forEach(row => {
+                                    const name = row['Insumo'];
+                                    const cost = parseFloat(row['Costo']);
+                                    if (name) {
+                                      if(!finalCosts[name]) {
+                                          finalCosts[name] = cost || 0;
+                                          newCostsCount++;
+                                      }
+                                      if(!importedIngredients.has(name)) {
+                                          importedIngredients.add(name);
+                                          newIngredientsCount++;
+                                      }
+                                    }
+                                });
+                            }
+
+                            const recetasSheet = workbook.Sheets['Recetas'];
+                            if (recetasSheet) {
+                                const recetasData = XLSX.utils.sheet_to_json(recetasSheet);
+                                const parsedRecetas = recetasData.reduce((acc, row) => {
+                                    const name = row['Nombre Receta'];
+                                    if (!name) return acc;
+                                    let receta = acc.find(r => r.name === name);
+                                    if (!receta) {
+                                        receta = { id: `receta_${Date.now()}_${acc.length}`, name, category: row['Categoría'] || 'Plato Principal', servings: parseInt(row['Rendimiento']) || 1, salePrice: parseFloat(row['Precio Venta']) || 0, notes: row['Notas'] || '', ingredients: [] };
+                                        acc.push(receta);
+                                    }
+                                    const ingredientName = row['Ingrediente'];
+                                    if (ingredientName) {
+                                        receta.ingredients.push({ id: `ing_${Date.now()}_${Math.random()}`, name: ingredientName, quantity: parseFloat(row['Cantidad']) || 0, unit: row['Unidad Medida'] || 'g', wastePercentage: parseFloat(row['Merma (%)']) || 0 });
+                                        if (ingredientName && !importedIngredients.has(ingredientName)) {
+                                            importedIngredients.add(ingredientName);
+                                            newIngredientsCount++;
+                                        }
+                                    }
+                                    return acc;
+                                }, []);
+                                
+                                const existingRecetaNames = new Set(finalRecetas.map(r => r.name));
+                                const newRecetas = parsedRecetas.filter(r => !existingRecetaNames.has(r.name));
+                                if (newRecetas.length > 0) { finalRecetas = [...finalRecetas, ...newRecetas]; newRecetasCount = newRecetas.length; }
+                            }
+                            
+                            if (newCostsCount > 0) setInsumoCosts(finalCosts);
+                            if (newRecetasCount > 0) setRecetas(finalRecetas);
+                            if (newIngredientsCount > 0) setRawIngredients(Array.from(importedIngredients));
+                            alert(`Importación completada.\n- ${newIngredientsCount} insumos nuevos añadidos.\n- ${newCostsCount} costos de insumos nuevos añadidos.\n- ${newRecetasCount} recetas nuevas añadidas.`);
+                        } catch (error) {
+                            console.error("Error al importar el archivo:", error);
+                            alert("Hubo un error al importar el archivo. Asegúrate de que el formato sea correcto y que las hojas se llamen 'Costos Insumos' y 'Recetas'.");
+                        }
+                    };
+                    reader.readAsArrayBuffer(file);
+                };
+                input.click();
             };
 
-            const renderPage = () => {
-                const { page, props } = currentPage;
-                
-                switch (page) {
-                    case 'dashboard': return <DashboardPage products={products} recipes={recipes} />;
-                    case 'productList': return <ProductListPage products={products} setProducts={setProducts} recipes={recipes} setRecipes={setRecipes} navigateTo={navigateTo} />;
-                    case 'savedRecipes': return <SavedRecipesPage products={products} recipes={recipes} setRecipes={setRecipes} navigateTo={navigateTo} setProducts={setProducts} />;
-                    case 'recipeDetail': return <RecipeDetailPage {...props} products={products} recipes={recipes} setRecipes={setRecipes} setProducts={setProducts} navigateTo={navigateTo} />;
-                    default: return <DashboardPage products={products} recipes={recipes} />;
+            const handleExport = () => {
+                const costosWorksheet = XLSX.utils.json_to_sheet(
+                    Object.entries(insumoCosts).map(([insumo, costo]) => ({ 'Insumo': insumo, 'Costo': costo }))
+                );
+                const recetasForExport = recetas.flatMap(receta =>
+                    (receta.ingredients || []).length > 0 ? receta.ingredients.map(ing => ({
+                        'Nombre Receta': receta.name, 'Categoría': receta.category, 'Rendimiento': receta.servings,
+                        'Precio Venta': receta.salePrice, 'Notas': receta.notes, 'Ingrediente': ing.name,
+                        'Cantidad': ing.quantity, 'Unidad Medida': ing.unit, 'Merma (%)': ing.wastePercentage
+                    })) : [{ 'Nombre Receta': receta.name, 'Categoría': receta.category, 'Rendimiento': receta.servings, 'Precio Venta': receta.salePrice, 'Notas': receta.notes }]
+                );
+                const recetasWorksheet = XLSX.utils.json_to_sheet(recetasForExport);
+                const workbook = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(workbook, costosWorksheet, 'Costos Insumos');
+                XLSX.utils.book_append_sheet(workbook, recetasWorksheet, 'Recetas');
+                XLSX.writeFile(workbook, 'Datos_Costos_Recetas.xlsx');
+                setHasUnexportedChanges(false);
+                alert('Datos exportados correctamente.');
+            };
+            
+            const handleMorphiImport = () => {
+                const input = document.createElement('input');
+                input.type = 'file';
+                input.accept = '.xlsx, .xls';
+                input.onchange = e => {
+                    const file = e.target.files[0];
+                    if (!file) return;
+                    const reader = new FileReader();
+                    reader.onload = event => {
+                        try {
+                            const data = new Uint8Array(event.target.result);
+                            const workbook = XLSX.read(data, { type: 'array' });
+                            const sheetName = workbook.SheetNames[0];
+                            const worksheet = workbook.Sheets[sheetName];
+                            const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+
+                            if (jsonData.length < 2) {
+                                alert("El archivo Excel está vacío o no tiene encabezados.");
+                                return;
+                            }
+
+                            const headers = jsonData[0];
+                            const dataRows = jsonData.slice(1);
+                            
+                            const COL_F_INDEX = 5; // Column F is index 5
+                            const availablePriceLists = headers.slice(COL_F_INDEX).filter(h => h && typeof h === 'string' && h.trim() !== '');
+
+
+                            if (availablePriceLists.length === 0) {
+                                alert("No se encontraron listas de precios en las columnas F en adelante.");
+                                return;
+                            }
+
+                            setParsedMorphiData({ headers, data: dataRows });
+                            setPriceListHeaders(availablePriceLists);
+                            setPriceListModalOpen(true);
+
+                        } catch (error) {
+                            console.error("Error al importar el archivo Morphi:", error);
+                            alert("Hubo un error al procesar el archivo. Asegúrate de que es un archivo Excel válido.");
+                        }
+                    };
+                    reader.readAsArrayBuffer(file);
+                };
+                input.click();
+            };
+            
+            const handlePriceListSelect = (selectedHeader) => {
+                const { headers, data } = parsedMorphiData;
+
+                const descriptionIndex = headers.findIndex(h => typeof h === 'string' && h.trim().toLowerCase() === 'descripcion');
+                const priceIndex = headers.indexOf(selectedHeader);
+
+                if (descriptionIndex === -1) {
+                    alert("No se pudo encontrar la columna 'Descripcion' en el archivo Excel.");
+                    setPriceListModalOpen(false);
+                    return;
                 }
+
+                const newMorphiRecetas = data.map((row, index) => {
+                    const name = row[descriptionIndex];
+                    const salePrice = parseFloat(row[priceIndex]) || 0;
+
+                    if (!name || typeof name !== 'string' || name.trim() === '') {
+                        return null; 
+                    }
+
+                    return {
+                        id: `receta_morphi_${Date.now()}_${index}`,
+                        name: name.trim(),
+                        salePrice: salePrice,
+                        category: 'Sin Analizar',
+                        servings: 1,
+                        notes: `Importado desde lista Morphi. Columna de precios: ${selectedHeader}`,
+                        ingredients: []
+                    };
+                }).filter(Boolean);
+
+                let addedCount = 0;
+                if (newMorphiRecetas.length > 0) {
+                    setRecetas(prev => {
+                        const existingNames = new Set(prev.map(r => r.name));
+                        const uniqueNewRecetas = newMorphiRecetas.filter(r => !existingNames.has(r.name));
+                        addedCount = uniqueNewRecetas.length;
+                        return [...prev, ...uniqueNewRecetas];
+                    });
+                }
+                
+                if (addedCount > 0) {
+                    alert(`${addedCount} recetas nuevas han sido creadas exitosamente desde la lista Morphi.`);
+                } else {
+                    alert("No se crearon recetas nuevas. Puede que ya existan en la lista actual.");
+                }
+
+                setPriceListModalOpen(false);
+                setParsedMorphiData(null);
+                setPriceListHeaders([]);
+            };
+
+            const handleCreateReceta = () => {
+                const newReceta = {
+                    id: `receta_${Date.now()}`, name: 'Nueva Receta', category: 'Plato Principal', servings: 1,
+                    salePrice: 0, notes: '', ingredients: []
+                };
+                setRecetas(prev => [...prev, newReceta]);
+                setSelectedReceta(newReceta);
+                setCurrentView('recetaDetail');
+            };
+
+            const Nav = ({ current, setView }) => {
+                const navItems = [
+                    { id: 'recetas', label: 'Mis Recetas', icon: <BookOpenIcon className="h-5 w-5 mr-3" /> },
+                    { id: 'costos', label: 'Costos de Insumos', icon: <DollarSignIcon /> },
+                ];
+                return (
+                    <nav className="space-y-1" aria-label="Sidebar">
+                        {navItems.map(item => (
+                            <a key={item.id} href="#" onClick={(e) => { e.preventDefault(); setView(item.id) }} className={`${ current === item.id ? 'bg-slate-200 text-slate-900' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900' } group flex items-center px-3 py-2 text-sm font-medium rounded-md`}>
+                                {item.icon} {item.label}
+                            </a>
+                        ))}
+                    </nav>
+                );
             };
 
             return (
-                <>
-                    <Header navigateTo={navigateTo} currentPage={currentPage.page} handleImportExcel={handleImportExcel} handleExportExcel={handleExportExcel} />
-                    <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                        {renderPage()}
-                    </main>
-                </>
+                <div className="min-h-screen bg-slate-100">
+                    <Header onImport={handleImport} onExport={handleExport} hasUnexportedChanges={hasUnexportedChanges} />
+                    <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+                            <aside className="lg:col-span-1">
+                                <Nav current={currentView} setView={(view) => { setCurrentView(view); setSelectedReceta(null); }} />
+                            </aside>
+                            <main className="lg:col-span-3">
+                                {currentView === 'recetas' && <RecetasPage recetas={recetas} setRecetas={setRecetas} ingredientCostMap={ingredientCostMap} onSelectReceta={(receta) => { setSelectedReceta(receta); setCurrentView('recetaDetail'); }} onCreateReceta={handleCreateReceta} onMorphiImport={handleMorphiImport} />}
+                                {currentView === 'costos' && <InsumosCostosPage insumoCosts={insumoCosts} setInsumoCosts={setInsumoCosts} rawIngredients={rawIngredients} setRawIngredients={setRawIngredients} />}
+                                {currentView === 'recetaDetail' && selectedReceta && <RecetaDetailPage initialReceta={selectedReceta} setRecetas={setRecetas} onBack={() => { setSelectedReceta(null); setCurrentView('recetas'); }} ingredientCostMap={ingredientCostMap} availableIngredients={availableIngredients} />}
+                            </main>
+                        </div>
+                    </div>
+                    <PriceListSelectionModal 
+                        isOpen={isPriceListModalOpen}
+                        onClose={() => setPriceListModalOpen(false)}
+                        headers={priceListHeaders}
+                        onSelect={handlePriceListSelect}
+                    />
+                </div>
             );
         };
 
         const root = ReactDOM.createRoot(document.getElementById('root'));
         root.render(<App />);
-
     </script>
 </body>
 </html>
